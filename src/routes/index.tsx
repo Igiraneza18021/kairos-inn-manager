@@ -3,6 +3,8 @@ import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Wifi, BedDouble, Bath, Coffee, Fan, Briefcase, MapPin, Star } from "lucide-react";
 import hero from "@/assets/hero-motel.jpg";
+import roomStandard from "@/assets/room-standard.jpg";
+import roomFamily from "@/assets/room-family.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -118,13 +120,10 @@ function HomePage() {
           <div className="grid gap-6 md:grid-cols-2">
             <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
               <img
-                src="/images/room-standard-thumb.jpg"
-                alt="Standard room"
+                src={roomStandard}
+                alt="Standard room at Kairos Inn"
                 loading="lazy"
                 className="h-56 w-full object-cover"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).style.display = "none";
-                }}
               />
               <div className="p-6">
                 <div className="flex items-baseline justify-between">
@@ -140,6 +139,12 @@ function HomePage() {
               </div>
             </div>
             <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+              <img
+                src={roomFamily}
+                alt="Family Suite at Kairos Inn"
+                loading="lazy"
+                className="h-56 w-full object-cover"
+              />
               <div className="p-6">
                 <div className="flex items-baseline justify-between">
                   <h3 className="font-serif text-xl font-bold">Family Suite</h3>

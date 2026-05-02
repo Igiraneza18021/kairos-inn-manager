@@ -80,14 +80,35 @@ function AccountPage() {
               Browse available rooms and make a reservation.
             </p>
           </Link>
+          <Link
+            to="/messages"
+            className="rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:shadow-md"
+          >
+            <h2 className="font-serif text-lg font-bold">Chat with reception</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Ask questions, request services, or confirm details.
+            </p>
+          </Link>
+          <Link
+            to="/reviews"
+            className="rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:shadow-md"
+          >
+            <h2 className="font-serif text-lg font-bold">Leave a review</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Share your experience after your stay.
+            </p>
+          </Link>
 
           {(role === "staff" || role === "manager") && (
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-              <h2 className="font-serif text-lg font-bold">Staff Dashboard</h2>
+            <Link
+              to="/staff"
+              className="rounded-2xl border-2 border-primary bg-primary/5 p-6 shadow-sm transition hover:shadow-md"
+            >
+              <h2 className="font-serif text-lg font-bold text-primary">Staff Dashboard →</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Manage bookings, rooms, and messages. (Coming in next update.)
+                Manage bookings, rooms, messages, reviews, and staff.
               </p>
-            </div>
+            </Link>
           )}
         </div>
 

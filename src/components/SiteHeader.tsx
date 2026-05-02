@@ -22,6 +22,7 @@ export function SiteHeader() {
   const nav = [
     { to: "/", label: "Home" },
     { to: "/rooms", label: "Rooms" },
+    { to: "/reviews", label: "Reviews" },
     { to: "/contact", label: "Contact" },
   ];
 
