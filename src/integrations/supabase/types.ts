@@ -65,7 +65,7 @@ export type Database = {
           status: Database["public"]["Enums"]["booking_status"]
           total_price: number
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           check_in: string
@@ -81,7 +81,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["booking_status"]
           total_price: number
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           check_in?: string
@@ -97,34 +97,43 @@ export type Database = {
           status?: Database["public"]["Enums"]["booking_status"]
           total_price?: number
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
       messages: {
         Row: {
           body: string
-          conversation_user_id: string
+          conversation_user_id: string | null
           created_at: string
+          guest_name: string | null
+          guest_phone: string | null
+          guest_session_id: string | null
           id: string
           read_by_recipient: boolean
-          sender_id: string
+          sender_id: string | null
         }
         Insert: {
           body: string
-          conversation_user_id: string
+          conversation_user_id?: string | null
           created_at?: string
+          guest_name?: string | null
+          guest_phone?: string | null
+          guest_session_id?: string | null
           id?: string
           read_by_recipient?: boolean
-          sender_id: string
+          sender_id?: string | null
         }
         Update: {
           body?: string
-          conversation_user_id?: string
+          conversation_user_id?: string | null
           created_at?: string
+          guest_name?: string | null
+          guest_phone?: string | null
+          guest_session_id?: string | null
           id?: string
           read_by_recipient?: boolean
-          sender_id?: string
+          sender_id?: string | null
         }
         Relationships: []
       }
@@ -161,7 +170,7 @@ export type Database = {
           guest_name: string
           id: string
           rating: number
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           approved?: boolean
@@ -171,7 +180,7 @@ export type Database = {
           guest_name: string
           id?: string
           rating: number
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           approved?: boolean
@@ -181,7 +190,7 @@ export type Database = {
           guest_name?: string
           id?: string
           rating?: number
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -261,6 +270,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_unavailable_room_ids: {
+        Args: { _check_in: string; _check_out: string }
+        Returns: {
+          room_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
