@@ -343,15 +343,26 @@ function RoomsPanel({ canEdit }: { canEdit: boolean }) {
 type MsgRow = {
   id: string;
   body: string;
-  sender_id: string;
-  conversation_user_id: string;
+  sender_id: string | null;
+  conversation_user_id: string | null;
+  guest_session_id: string | null;
+  guest_name: string | null;
+  guest_phone: string | null;
   created_at: string;
 };
 
+type Conversation = {
+  key: string;            // either user_id or guest_session_id
+  isGuest: boolean;
+  name: string;
+  phone: string | null;
+  last: string;
+  at: string;
+};
+
 function MessagesPanel() {
-  const [profiles, setProfiles] = useState<Record<string, Profile>>({});
-  const [conversations, setConversations] = useState<{ user_id: string; last: string; at: string }[]>([]);
-  const [activeUser, setActiveUser] = useState<string | null>(null);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [active, setActive] = useState<Conversation | null>(null);
   const [thread, setThread] = useState<MsgRow[]>([]);
   const [body, setBody] = useState("");
   const [me, setMe] = useState<string>("");
@@ -363,26 +374,57 @@ function MessagesPanel() {
   const loadConversations = async () => {
     const { data } = await supabase
       .from("messages")
-      .select("conversation_user_id, body, created_at")
+      .select("conversation_user_id, guest_session_id, guest_name, guest_phone, body, created_at")
       .order("created_at", { ascending: false });
     if (!data) return;
+
     const seen = new Set<string>();
-    const list: { user_id: string; last: string; at: string }[] = [];
+    const list: Conversation[] = [];
+    const userIds: string[] = [];
+
     for (const m of data) {
-      if (seen.has(m.conversation_user_id)) continue;
-      seen.add(m.conversation_user_id);
-      list.push({ user_id: m.conversation_user_id, last: m.body, at: m.created_at });
+      const isGuest = !m.conversation_user_id && !!m.guest_session_id;
+      const key = isGuest ? (m.guest_session_id as string) : (m.conversation_user_id as string | null);
+      if (!key) continue;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      if (!isGuest) userIds.push(key);
+      list.push({
+        key,
+        isGuest,
+        name: m.guest_name || (isGuest ? "Guest" : "Member"),
+        phone: m.guest_phone ?? null,
+        last: m.body,
+        at: m.created_at,
+      });
     }
-    setConversations(list);
-    if (list.length) {
+
+    if (userIds.length) {
       const { data: profs } = await supabase
         .from("profiles")
         .select("id, full_name, phone")
-        .in("id", list.map((x) => x.user_id));
-      const map: Record<string, Profile> = {};
-      profs?.forEach((p) => (map[p.id] = p as Profile));
-      setProfiles(map);
+        .in("id", userIds);
+      const map = new Map<string, Profile>();
+      profs?.forEach((p) => map.set(p.id, p as Profile));
+      for (const c of list) {
+        if (!c.isGuest) {
+          const p = map.get(c.key);
+          if (p) {
+            c.name = p.full_name || "Member";
+            c.phone = p.phone ?? c.phone;
+          }
+        }
+      }
     }
+    setConversations(list);
+  };
+
+  const loadThread = async (c: Conversation) => {
+    const q = supabase.from("messages").select("*").order("created_at", { ascending: true });
+    const { data } = c.isGuest
+      ? await q.eq("guest_session_id", c.key)
+      : await q.eq("conversation_user_id", c.key);
+    setThread((data as MsgRow[]) ?? []);
   };
 
   useEffect(() => {
@@ -391,73 +433,83 @@ function MessagesPanel() {
       .channel("staff-msgs")
       .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () => {
         loadConversations();
-        if (activeUser) loadThread(activeUser);
+        if (active) loadThread(active);
       })
       .subscribe();
     return () => {
       supabase.removeChannel(ch);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeUser]);
+  }, [active?.key]);
 
-  const loadThread = async (uid: string) => {
-    const { data } = await supabase
-      .from("messages")
-      .select("*")
-      .eq("conversation_user_id", uid)
-      .order("created_at", { ascending: true });
-    setThread((data as MsgRow[]) ?? []);
-  };
-
-  const openConv = (uid: string) => {
-    setActiveUser(uid);
-    loadThread(uid);
+  const openConv = (c: Conversation) => {
+    setActive(c);
+    loadThread(c);
   };
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activeUser || !body.trim()) return;
-    const { error } = await supabase.from("messages").insert({
-      body: body.trim(),
-      sender_id: me,
-      conversation_user_id: activeUser,
-    });
+    if (!active || !body.trim()) return;
+    const payload = active.isGuest
+      ? {
+          body: body.trim(),
+          sender_id: me,
+          guest_session_id: active.key,
+          guest_name: active.name,
+          guest_phone: active.phone,
+        }
+      : {
+          body: body.trim(),
+          sender_id: me,
+          conversation_user_id: active.key,
+        };
+    const { error } = await supabase.from("messages").insert(payload);
     if (error) return toast.error(error.message);
     setBody("");
-    loadThread(activeUser);
+    loadThread(active);
   };
 
   return (
-    <div className="grid gap-4 md:grid-cols-[260px_1fr]">
+    <div className="grid gap-4 md:grid-cols-[280px_1fr]">
       <aside className="rounded-xl border border-border bg-card p-2">
         {conversations.length === 0 && (
           <p className="p-2 text-sm text-muted-foreground">No conversations yet.</p>
         )}
         {conversations.map((c) => (
           <button
-            key={c.user_id}
-            onClick={() => openConv(c.user_id)}
+            key={c.key}
+            onClick={() => openConv(c)}
             className={`block w-full rounded-lg p-2 text-left text-sm transition ${
-              activeUser === c.user_id ? "bg-primary/10" : "hover:bg-muted"
+              active?.key === c.key ? "bg-primary/10" : "hover:bg-muted"
             }`}
           >
-            <div className="font-medium text-foreground">
-              {profiles[c.user_id]?.full_name || "Guest"}
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-medium text-foreground truncate">{c.name}</span>
+              {c.isGuest && <Badge variant="secondary" className="text-[10px]">Guest</Badge>}
             </div>
+            {c.phone && <div className="text-xs text-primary">{c.phone}</div>}
             <div className="truncate text-xs text-muted-foreground">{c.last}</div>
           </button>
         ))}
       </aside>
       <div className="flex h-[60vh] flex-col rounded-xl border border-border bg-card">
-        {!activeUser ? (
+        {!active ? (
           <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
             Pick a conversation to view messages.
           </div>
         ) : (
           <>
+            <div className="border-b border-border p-3 text-sm">
+              <span className="font-semibold">{active.name}</span>
+              {active.phone && (
+                <a href={`tel:${active.phone}`} className="ml-2 text-primary hover:underline">
+                  {active.phone}
+                </a>
+              )}
+            </div>
             <div className="flex-1 space-y-2 overflow-y-auto p-4">
               {thread.map((m) => {
-                const mine = m.sender_id === me;
+                const mine = !!m.sender_id && m.sender_id === me;
                 return (
                   <div
                     key={m.id}
