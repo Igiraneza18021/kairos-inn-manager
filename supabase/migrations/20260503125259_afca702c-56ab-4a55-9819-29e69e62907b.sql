@@ -1,0 +1,2 @@
+REVOKE EXECUTE ON FUNCTION public.create_booking_with_rooms(uuid, text, text, text, text, date, date, integer, numeric, text, uuid[]) FROM public, anon, authenticated;
+DROP FUNCTION IF EXISTS public.create_booking_with_rooms(uuid, text, text, text, text, date, date, integer, numeric, text, uuid[]);

@@ -1,12 +1,14 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
+import { useServerFn } from "@tanstack/react-start";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { createBooking } from "@/server/bookings.functions";
 import { toast } from "sonner";
 
 const searchSchema = z.object({
@@ -53,6 +55,7 @@ function nights(checkIn: string, checkOut: string) {
 function BookPage() {
   const { type = "standard" } = useSearch({ from: "/book" });
   const navigate = useNavigate();
+  const createBookingFn = useServerFn(createBooking);
 
   const [rooms, setRooms] = useState<Room[]>([]);
   const [unavailableIds, setUnavailableIds] = useState<Set<string>>(new Set());
@@ -146,37 +149,29 @@ function BookPage() {
     const userId = sess.session?.user.id ?? null;
     const groupId = crypto.randomUUID();
 
-    const { data: booking, error } = await supabase
-      .from("bookings")
-      .insert({
-        user_id: userId,
-        group_id: groupId,
-        guest_name: guestName.trim(),
-        guest_phone: guestPhone.trim(),
-        guest_email: guestEmail.trim() || null,
-        check_in: checkIn,
-        check_out: checkOut,
-        num_guests: numGuests,
-        total_price: total,
-        status: "pending",
-        notes: notes.trim() || null,
-      })
-      .select("id")
-      .single();
-
-    if (error || !booking) {
+    try {
+      await createBookingFn({
+        data: {
+          userId,
+          groupId,
+          guestName: guestName.trim(),
+          guestPhone: guestPhone.trim(),
+          guestEmail: guestEmail.trim() || null,
+          checkIn,
+          checkOut,
+          numGuests,
+          totalPrice: total,
+          notes: notes.trim() || null,
+          roomIds,
+        },
+      });
       setSubmitting(false);
-      return toast.error(error?.message || "Could not create booking.");
+      toast.success("Booking request sent! Reception will call you shortly to confirm.");
+      navigate({ to: "/" });
+    } catch (error) {
+      setSubmitting(false);
+      return toast.error(error instanceof Error ? error.message : "Could not create booking.");
     }
-
-    const { error: brError } = await supabase
-      .from("booking_rooms")
-      .insert(roomIds.map((rid) => ({ booking_id: booking.id, room_id: rid })));
-
-    setSubmitting(false);
-    if (brError) return toast.error(brError.message);
-    toast.success("Booking request sent! Reception will call you shortly to confirm.");
-    navigate({ to: "/" });
   };
 
   return (
