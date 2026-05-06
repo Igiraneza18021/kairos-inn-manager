@@ -1,0 +1,14 @@
+[build]
+  command = "bun run build"
+  publish = "dist/client"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# TanStack Start outputs a Netlify function for SSR when the netlify target is used.
+# The plugin auto-wires the function; this redirect is a safety net.
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/server"
+  status = 200
+  force = false
