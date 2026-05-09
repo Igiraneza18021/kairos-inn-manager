@@ -202,6 +202,27 @@ export type Database = {
           },
         ]
       }
+      role_passkeys: {
+        Row: {
+          passkey: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          passkey: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          passkey?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       rooms: {
         Row: {
           active: boolean
@@ -244,6 +265,42 @@ export type Database = {
         }
         Relationships: []
       }
+      transactions: {
+        Row: {
+          amount: number
+          booking_id: string | null
+          created_at: string
+          description: string
+          id: string
+          payment_date: string
+          payment_method: string
+          recorded_by: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          booking_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          payment_date?: string
+          payment_method?: string
+          recorded_by: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          payment_date?: string
+          payment_method?: string
+          recorded_by?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -283,7 +340,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_owner_or_manager: { Args: { _user_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      redeem_role_passkey: {
+        Args: { _passkey: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
     }
     Enums: {
       app_role:
