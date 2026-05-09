@@ -45,6 +45,7 @@ function AuthPage() {
   const handleSignUp = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
+    const passkey = String(fd.get("passkey") ?? "").trim();
     setLoading(true);
     const { error } = await supabase.auth.signUp({
       email: String(fd.get("email")),
@@ -57,12 +58,21 @@ function AuthPage() {
         },
       },
     });
-    setLoading(false);
     if (error) {
+      setLoading(false);
       toast.error(error.message);
       return;
     }
-    toast.success("Account created! You're now signed in.");
+    if (passkey) {
+      const { data: granted, error: pkErr } = await supabase.rpc("redeem_role_passkey", {
+        _passkey: passkey,
+      });
+      if (pkErr) toast.error(`Passkey: ${pkErr.message}`);
+      else if (granted) toast.success(`Account created. Role granted: ${granted}`);
+    } else {
+      toast.success("Account created! You're now signed in.");
+    }
+    setLoading(false);
     navigate({ to: "/account" });
   };
 
@@ -127,6 +137,13 @@ function AuthPage() {
                     autoComplete="new-password"
                   />
                   <p className="mt-1 text-xs text-muted-foreground">At least 8 characters.</p>
+                </div>
+                <div>
+                  <Label htmlFor="su-passkey">Staff passkey (optional)</Label>
+                  <Input id="su-passkey" name="passkey" placeholder="Leave blank if you're a guest" />
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Only enter this if a manager gave you a passkey.
+                  </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Creating account..." : "Create account"}
