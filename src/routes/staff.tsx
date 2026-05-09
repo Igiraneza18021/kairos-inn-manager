@@ -645,15 +645,17 @@ function ReviewsPanel() {
   );
 }
 
-/* ─────────────────  Staff management (manager only)  ───────────────── */
-function StaffPanel() {
-  const [people, setPeople] = useState<(Profile & { roles: string[] })[]>([]);
+/* ─────────────────  Staff management  ───────────────── */
+type GrantableRole = "staff" | "accountant" | "receptionist" | "manager";
+
+function StaffPanel({ isOwner }: { isOwner: boolean }) {
+  const [people, setPeople] = useState<(Profile & { roles: AppRole[] })[]>([]);
   const [search, setSearch] = useState("");
 
   const load = async () => {
     const { data: profs } = await supabase.from("profiles").select("id, full_name, phone");
     const { data: roles } = await supabase.from("user_roles").select("user_id, role");
-    const map: Record<string, string[]> = {};
+    const map: Record<string, AppRole[]> = {};
     (roles as RoleRow[] | null)?.forEach((r) => {
       map[r.user_id] = [...(map[r.user_id] ?? []), r.role];
     });
@@ -663,14 +665,18 @@ function StaffPanel() {
     load();
   }, []);
 
-  const grant = async (uid: string, role: "staff" | "manager") => {
+  const grant = async (uid: string, role: GrantableRole) => {
     const { error } = await supabase.from("user_roles").insert({ user_id: uid, role });
     if (error) return toast.error(error.message);
     toast.success(`Granted ${role}.`);
     load();
   };
-  const revoke = async (uid: string, role: "staff" | "manager") => {
-    const { error } = await supabase.from("user_roles").delete().eq("user_id", uid).eq("role", role);
+  const revoke = async (uid: string, role: GrantableRole) => {
+    const { error } = await supabase
+      .from("user_roles")
+      .delete()
+      .eq("user_id", uid)
+      .eq("role", role);
     if (error) return toast.error(error.message);
     toast.success(`Revoked ${role}.`);
     load();
@@ -683,52 +689,276 @@ function StaffPanel() {
       (p.phone ?? "").includes(search),
   );
 
+  const grantable: GrantableRole[] = isOwner
+    ? ["accountant", "receptionist", "staff", "manager"]
+    : ["accountant", "receptionist", "staff"];
+
   return (
     <div className="space-y-4">
       <div>
         <Label>Find a user by name or phone</Label>
         <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search..." />
         <p className="mt-1 text-xs text-muted-foreground">
-          Tip: ask the person to sign up first at <Link to="/auth" className="text-primary underline">/auth</Link>,
-          then promote them here.
+          Tip: ask the person to sign up first at{" "}
+          <Link to="/auth" className="text-primary underline">/auth</Link>, then assign their role here.
+          {!isOwner && " Only the owner can grant or revoke the manager role."}
         </p>
       </div>
       <div className="space-y-3">
         {filtered.map((p) => {
-          const isStaff = p.roles.includes("staff");
-          const isManager = p.roles.includes("manager");
+          const isOwnerRow = p.roles.includes("owner");
           return (
             <article key={p.id} className="rounded-xl border border-border bg-card p-4 shadow-sm">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <div className="font-semibold">{p.full_name || "(no name)"}</div>
                   <div className="text-sm text-muted-foreground">{p.phone}</div>
-                  <div className="mt-1 flex gap-1">
+                  <div className="mt-1 flex flex-wrap gap-1">
                     {p.roles.map((r) => (
                       <Badge key={r} variant="secondary" className="capitalize">{r}</Badge>
                     ))}
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {!isStaff ? (
-                    <Button size="sm" onClick={() => grant(p.id, "staff")}>Make staff</Button>
-                  ) : (
-                    <Button size="sm" variant="outline" onClick={() => revoke(p.id, "staff")}>
-                      Remove staff
-                    </Button>
-                  )}
-                  {!isManager ? (
-                    <Button size="sm" onClick={() => grant(p.id, "manager")}>Make manager</Button>
-                  ) : (
-                    <Button size="sm" variant="outline" onClick={() => revoke(p.id, "manager")}>
-                      Remove manager
-                    </Button>
-                  )}
-                </div>
+                {isOwnerRow ? (
+                  <span className="text-xs text-muted-foreground">Owner — protected</span>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {grantable.map((r) =>
+                      p.roles.includes(r) ? (
+                        <Button
+                          key={r}
+                          size="sm"
+                          variant="outline"
+                          onClick={() => revoke(p.id, r)}
+                        >
+                          Remove {r}
+                        </Button>
+                      ) : (
+                        <Button key={r} size="sm" onClick={() => grant(p.id, r)}>
+                          Make {r}
+                        </Button>
+                      ),
+                    )}
+                  </div>
+                )}
               </div>
             </article>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────  Transactions (accountant + manager + owner)  ───────────────── */
+function TransactionsPanel({ canEdit }: { canEdit: boolean }) {
+  const [tx, setTx] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState({
+    amount: "",
+    payment_date: new Date().toISOString().slice(0, 10),
+    payment_method: "cash",
+    description: "",
+  });
+
+  const load = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("transactions")
+      .select("*")
+      .order("payment_date", { ascending: false })
+      .order("created_at", { ascending: false });
+    if (error) toast.error(error.message);
+    setTx((data as Transaction[]) ?? []);
+    setLoading(false);
+  };
+  useEffect(() => {
+    load();
+  }, []);
+
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const { data: sess } = await supabase.auth.getSession();
+    if (!sess.session) return toast.error("Sign in required.");
+    const amount = Number(form.amount);
+    if (!amount || amount <= 0) return toast.error("Enter a valid amount.");
+    if (!form.description.trim()) return toast.error("Add a description.");
+    const { error } = await supabase.from("transactions").insert({
+      amount,
+      payment_date: form.payment_date,
+      payment_method: form.payment_method,
+      description: form.description.trim(),
+      recorded_by: sess.session.user.id,
+    });
+    if (error) return toast.error(error.message);
+    toast.success("Transaction recorded.");
+    setForm({ ...form, amount: "", description: "" });
+    load();
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm("Delete this transaction?")) return;
+    const { error } = await supabase.from("transactions").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    load();
+  };
+
+  const total = tx.reduce((s, t) => s + Number(t.amount), 0);
+
+  return (
+    <div className="space-y-6">
+      <form
+        onSubmit={submit}
+        className="grid gap-3 rounded-xl border border-border bg-card p-4 shadow-sm sm:grid-cols-2"
+      >
+        <div>
+          <Label>Amount (RWF)</Label>
+          <Input
+            type="number"
+            min="0"
+            step="100"
+            value={form.amount}
+            onChange={(e) => setForm({ ...form, amount: e.target.value })}
+            required
+          />
+        </div>
+        <div>
+          <Label>Date</Label>
+          <Input
+            type="date"
+            value={form.payment_date}
+            onChange={(e) => setForm({ ...form, payment_date: e.target.value })}
+            required
+          />
+        </div>
+        <div>
+          <Label>Payment method</Label>
+          <select
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            value={form.payment_method}
+            onChange={(e) => setForm({ ...form, payment_method: e.target.value })}
+          >
+            <option value="cash">Cash</option>
+            <option value="momo">Mobile Money</option>
+            <option value="bank">Bank transfer</option>
+            <option value="card">Card</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div className="sm:col-span-2">
+          <Label>Description</Label>
+          <Input
+            placeholder="e.g. Room 12 — 2 nights, guest John"
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            required
+          />
+        </div>
+        <div className="sm:col-span-2">
+          <Button type="submit">Record transaction</Button>
+        </div>
+      </form>
+
+      <div>
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="font-serif text-lg font-bold">Recent transactions</h3>
+          <span className="text-sm text-muted-foreground">
+            Total: <span className="font-semibold text-foreground">RWF {total.toLocaleString()}</span>
+          </span>
+        </div>
+        {loading ? (
+          <p className="text-muted-foreground">Loading...</p>
+        ) : tx.length === 0 ? (
+          <p className="text-muted-foreground">No transactions yet.</p>
+        ) : (
+          <div className="space-y-2">
+            {tx.map((t) => (
+              <article
+                key={t.id}
+                className="flex flex-wrap items-start justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-sm"
+              >
+                <div>
+                  <div className="font-semibold text-foreground">{t.description}</div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">
+                    {t.payment_date} · {t.payment_method}
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-lg font-bold text-primary">
+                    RWF {Number(t.amount).toLocaleString()}
+                  </div>
+                  {canEdit && (
+                    <Button size="sm" variant="outline" onClick={() => remove(t.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────  Role passkeys (owner only)  ───────────────── */
+function PasskeysPanel() {
+  const [rows, setRows] = useState<PasskeyRow[]>([]);
+  const [edits, setEdits] = useState<Record<string, string>>({});
+
+  const load = async () => {
+    const { data, error } = await supabase
+      .from("role_passkeys")
+      .select("role, passkey")
+      .order("role");
+    if (error) return toast.error(error.message);
+    setRows((data as PasskeyRow[]) ?? []);
+  };
+  useEffect(() => {
+    load();
+  }, []);
+
+  const save = async (role: AppRole) => {
+    const newKey = (edits[role] ?? "").trim();
+    if (!newKey || newKey.length < 6) return toast.error("Passkey must be at least 6 characters.");
+    const { error } = await supabase
+      .from("role_passkeys")
+      .update({ passkey: newKey, updated_at: new Date().toISOString() })
+      .eq("role", role);
+    if (error) return toast.error(error.message);
+    toast.success(`Passkey for ${role} updated.`);
+    setEdits({ ...edits, [role]: "" });
+    load();
+  };
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        Share these passkeys with new staff. They enter the passkey when signing up and are
+        automatically given the matching role. Change them anytime — old passkeys stop working
+        immediately.
+      </p>
+      <div className="space-y-3">
+        {rows.map((r) => (
+          <article key={r.role} className="rounded-xl border border-border bg-card p-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <Badge className="uppercase">{r.role}</Badge>
+              <code className="rounded bg-muted px-2 py-0.5 text-sm">{r.passkey}</code>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Input
+                placeholder="New passkey..."
+                value={edits[r.role] ?? ""}
+                onChange={(e) => setEdits({ ...edits, [r.role]: e.target.value })}
+                className="max-w-xs"
+              />
+              <Button size="sm" onClick={() => save(r.role)}>
+                Update
+              </Button>
+            </div>
+          </article>
+        ))}
       </div>
     </div>
   );
