@@ -286,7 +286,13 @@ export type Database = {
       is_staff: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "guest" | "staff" | "manager"
+      app_role:
+        | "guest"
+        | "staff"
+        | "manager"
+        | "owner"
+        | "accountant"
+        | "receptionist"
       booking_status: "pending" | "confirmed" | "cancelled" | "completed"
       room_type: "standard" | "family_suite"
     }
@@ -416,7 +422,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["guest", "staff", "manager"],
+      app_role: [
+        "guest",
+        "staff",
+        "manager",
+        "owner",
+        "accountant",
+        "receptionist",
+      ],
       booking_status: ["pending", "confirmed", "cancelled", "completed"],
       room_type: ["standard", "family_suite"],
     },
