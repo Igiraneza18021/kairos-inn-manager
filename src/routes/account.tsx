@@ -38,7 +38,19 @@ function AccountPage() {
       ]);
       setProfile(p);
       const roles = r?.map((x) => x.role) ?? [];
-      setRole(roles.includes("manager") ? "manager" : roles.includes("staff") ? "staff" : "guest");
+      setRole(
+        roles.includes("owner")
+          ? "owner"
+          : roles.includes("manager")
+            ? "manager"
+            : roles.includes("accountant")
+              ? "accountant"
+              : roles.includes("receptionist")
+                ? "receptionist"
+                : roles.includes("staff")
+                  ? "staff"
+                  : "guest",
+      );
       setLoading(false);
     })();
   }, [navigate]);
