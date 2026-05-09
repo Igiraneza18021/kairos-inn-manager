@@ -111,14 +111,20 @@ function AccountPage() {
             </p>
           </Link>
 
-          {(role === "staff" || role === "manager") && (
+          {role && role !== "guest" && (
             <Link
               to="/staff"
               className="rounded-2xl border-2 border-primary bg-primary/5 p-6 shadow-sm transition hover:shadow-md"
             >
               <h2 className="font-serif text-lg font-bold text-primary">Staff Dashboard →</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Manage bookings, rooms, messages, reviews, and staff.
+                {role === "owner"
+                  ? "Manage everything: transactions, staff, managers, room passkeys."
+                  : role === "manager"
+                    ? "Manage bookings, rooms, transactions, and staff."
+                    : role === "accountant"
+                      ? "Record transactions and view bookings."
+                      : "Manage bookings, messages, and reviews."}
               </p>
             </Link>
           )}
