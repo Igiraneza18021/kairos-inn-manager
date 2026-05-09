@@ -148,14 +148,14 @@ function StaffPage() {
                 Manage bookings, rooms, messages, and reviews.
               </p>
             </div>
-            <Badge className="uppercase">{role}</Badge>
+            <Badge className="uppercase">{primaryRole}</Badge>
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-8">
         <Tabs defaultValue="bookings">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5">
+          <TabsList className="flex w-full flex-wrap gap-1">
             <TabsTrigger value="bookings">
               <CalendarCheck className="mr-1.5 h-4 w-4" />
               Bookings
@@ -172,19 +172,23 @@ function StaffPage() {
               <Star className="mr-1.5 h-4 w-4" />
               Reviews
             </TabsTrigger>
-            {role === "manager" && (
+            {canSeeTransactions && (
+              <TabsTrigger value="transactions">💰 Transactions</TabsTrigger>
+            )}
+            {canManageStaff && (
               <TabsTrigger value="staff">
                 <Users className="mr-1.5 h-4 w-4" />
                 Staff
               </TabsTrigger>
             )}
+            {isOwner && <TabsTrigger value="passkeys">🔑 Passkeys</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="bookings" className="mt-6">
             <BookingsPanel />
           </TabsContent>
           <TabsContent value="rooms" className="mt-6">
-            <RoomsPanel canEdit={role === "manager"} />
+            <RoomsPanel canEdit={isOwner || isManager} />
           </TabsContent>
           <TabsContent value="messages" className="mt-6">
             <MessagesPanel />
@@ -192,9 +196,19 @@ function StaffPage() {
           <TabsContent value="reviews" className="mt-6">
             <ReviewsPanel />
           </TabsContent>
-          {role === "manager" && (
+          {canSeeTransactions && (
+            <TabsContent value="transactions" className="mt-6">
+              <TransactionsPanel canEdit={isOwner || isManager} />
+            </TabsContent>
+          )}
+          {canManageStaff && (
             <TabsContent value="staff" className="mt-6">
-              <StaffPanel />
+              <StaffPanel isOwner={isOwner} />
+            </TabsContent>
+          )}
+          {isOwner && (
+            <TabsContent value="passkeys" className="mt-6">
+              <PasskeysPanel />
             </TabsContent>
           )}
         </Tabs>
