@@ -139,11 +139,12 @@ function StaffPage() {
 
   return (
     <SiteLayout>
+      {/* ── Header ── */}
       <section className="border-b border-border bg-secondary/40">
-        <div className="mx-auto max-w-6xl px-4 py-8">
+        <div className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h1 className="font-serif text-3xl font-bold">Staff Dashboard</h1>
+              <h1 className="font-serif text-2xl font-bold sm:text-3xl">Staff Dashboard</h1>
               <p className="mt-1 text-sm text-muted-foreground">
                 Manage bookings, rooms, messages, and reviews.
               </p>
@@ -153,36 +154,46 @@ function StaffPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-8">
+      {/* ── Main content ── */}
+      <section className="mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-8">
         <Tabs defaultValue="bookings">
-          <TabsList className="flex w-full flex-wrap gap-1">
-            <TabsTrigger value="bookings">
-              <CalendarCheck className="mr-1.5 h-4 w-4" />
-              Bookings
-            </TabsTrigger>
-            <TabsTrigger value="rooms">
-              <BedDouble className="mr-1.5 h-4 w-4" />
-              Rooms
-            </TabsTrigger>
-            <TabsTrigger value="messages">
-              <MessageSquare className="mr-1.5 h-4 w-4" />
-              Messages
-            </TabsTrigger>
-            <TabsTrigger value="reviews">
-              <Star className="mr-1.5 h-4 w-4" />
-              Reviews
-            </TabsTrigger>
-            {canSeeTransactions && (
-              <TabsTrigger value="transactions">💰 Transactions</TabsTrigger>
-            )}
-            {canManageStaff && (
-              <TabsTrigger value="staff">
-                <Users className="mr-1.5 h-4 w-4" />
-                Staff
+          {/* Scrollable tab bar — no wrapping, swipe on mobile */}
+          <div className="overflow-x-auto">
+            <TabsList className="inline-flex min-w-full gap-1 sm:w-full sm:flex-wrap">
+              <TabsTrigger value="bookings" className="shrink-0 text-xs sm:text-sm">
+                <CalendarCheck className="mr-1.5 h-4 w-4" />
+                Bookings
               </TabsTrigger>
-            )}
-            {isOwner && <TabsTrigger value="passkeys">🔑 Passkeys</TabsTrigger>}
-          </TabsList>
+              <TabsTrigger value="rooms" className="shrink-0 text-xs sm:text-sm">
+                <BedDouble className="mr-1.5 h-4 w-4" />
+                Rooms
+              </TabsTrigger>
+              <TabsTrigger value="messages" className="shrink-0 text-xs sm:text-sm">
+                <MessageSquare className="mr-1.5 h-4 w-4" />
+                Messages
+              </TabsTrigger>
+              <TabsTrigger value="reviews" className="shrink-0 text-xs sm:text-sm">
+                <Star className="mr-1.5 h-4 w-4" />
+                Reviews
+              </TabsTrigger>
+              {canSeeTransactions && (
+                <TabsTrigger value="transactions" className="shrink-0 text-xs sm:text-sm">
+                  💰 Transactions
+                </TabsTrigger>
+              )}
+              {canManageStaff && (
+                <TabsTrigger value="staff" className="shrink-0 text-xs sm:text-sm">
+                  <Users className="mr-1.5 h-4 w-4" />
+                  Staff
+                </TabsTrigger>
+              )}
+              {isOwner && (
+                <TabsTrigger value="passkeys" className="shrink-0 text-xs sm:text-sm">
+                  🔑 Passkeys
+                </TabsTrigger>
+              )}
+            </TabsList>
+          </div>
 
           <TabsContent value="bookings" className="mt-6">
             <BookingsPanel />
@@ -233,9 +244,7 @@ function BookingsPanel() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
   const update = async (id: string, status: Booking["status"]) => {
     const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
@@ -248,12 +257,13 @@ function BookingsPanel() {
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap gap-2">
+      {/* Horizontally scrollable filter pills */}
+      <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
         {(["pending", "confirmed", "completed", "cancelled", "all"] as const).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`rounded-full border px-3 py-1 text-sm capitalize ${
+            className={`shrink-0 rounded-full border px-3 py-1 text-sm capitalize ${
               filter === f
                 ? "border-primary bg-primary text-primary-foreground"
                 : "border-border bg-background text-foreground"
@@ -263,6 +273,7 @@ function BookingsPanel() {
           </button>
         ))}
       </div>
+
       {loading ? (
         <p className="text-muted-foreground">Loading...</p>
       ) : list.length === 0 ? (
@@ -271,48 +282,67 @@ function BookingsPanel() {
         <div className="space-y-3">
           {list.map((b) => (
             <article key={b.id} className="rounded-xl border border-border bg-card p-4 shadow-sm">
+              {/* Top row: name + price */}
               <div className="flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <div className="flex items-center gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="font-semibold text-foreground">{b.guest_name}</span>
-                    <Badge variant={b.status === "pending" ? "default" : "secondary"} className="capitalize">
+                    <Badge
+                      variant={b.status === "pending" ? "default" : "secondary"}
+                      className="capitalize"
+                    >
                       {b.status}
                     </Badge>
                   </div>
                   <div className="mt-1 text-sm text-muted-foreground">
                     {b.check_in} → {b.check_out} · {b.num_guests} guest(s)
                   </div>
-                  <div className="mt-1 text-sm">
+                  <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm">
                     <a href={`tel:${b.guest_phone}`} className="text-primary hover:underline">
                       {b.guest_phone}
                     </a>
-                    {b.guest_email && <span className="text-muted-foreground"> · {b.guest_email}</span>}
+                    {b.guest_email && (
+                      <span className="break-all text-muted-foreground">{b.guest_email}</span>
+                    )}
                   </div>
                   {b.notes && <p className="mt-2 text-sm text-foreground">📝 {b.notes}</p>}
                 </div>
-                <div className="text-right">
-                  <div className="text-lg font-bold text-primary">
+                {/* Price — on its own line on very small screens */}
+                <div className="shrink-0 text-right">
+                  <div className="text-base font-bold text-primary sm:text-lg">
                     RWF {Number(b.total_price).toLocaleString()}
                   </div>
                 </div>
               </div>
+
+              {/* Action buttons */}
               <div className="mt-3 flex flex-wrap gap-2">
                 {b.status === "pending" && (
                   <>
-                    <Button size="sm" onClick={() => update(b.id, "confirmed")}>
+                    <Button size="sm" className="flex-1 sm:flex-none" onClick={() => update(b.id, "confirmed")}>
                       <CheckCircle2 className="mr-1 h-4 w-4" /> Confirm
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => update(b.id, "cancelled")}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1 sm:flex-none"
+                      onClick={() => update(b.id, "cancelled")}
+                    >
                       <XCircle className="mr-1 h-4 w-4" /> Decline
                     </Button>
                   </>
                 )}
                 {b.status === "confirmed" && (
                   <>
-                    <Button size="sm" onClick={() => update(b.id, "completed")}>
+                    <Button size="sm" className="flex-1 sm:flex-none" onClick={() => update(b.id, "completed")}>
                       Mark completed
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => update(b.id, "cancelled")}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1 sm:flex-none"
+                      onClick={() => update(b.id, "cancelled")}
+                    >
                       Cancel
                     </Button>
                   </>
@@ -333,9 +363,7 @@ function RoomsPanel({ canEdit }: { canEdit: boolean }) {
     const { data } = await supabase.from("rooms").select("*").order("room_number");
     setRooms((data as Room[]) ?? []);
   };
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
   const updateField = async (id: string, patch: Partial<Room>) => {
     const { error } = await supabase.from("rooms").update(patch).eq("id", id);
@@ -348,19 +376,20 @@ function RoomsPanel({ canEdit }: { canEdit: boolean }) {
     <div className="space-y-3">
       {rooms.map((r) => (
         <article key={r.id} className="rounded-xl border border-border bg-card p-4 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="font-semibold">{r.display_name}</div>
               <div className="text-sm text-muted-foreground">
-                Room {r.room_number} · {r.room_type === "family_suite" ? "Family Suite" : "Standard"} ·
+                Room {r.room_number} · {r.room_type === "family_suite" ? "Family Suite" : "Standard"} ·{" "}
                 RWF {Number(r.price_per_night).toLocaleString()}/night
               </div>
             </div>
             {canEdit && (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Button
                   size="sm"
                   variant={r.active ? "outline" : "default"}
+                  className="flex-1 sm:flex-none"
                   onClick={() => updateField(r.id, { active: !r.active })}
                 >
                   {r.active ? "Mark out of service" : "Reactivate"}
@@ -372,7 +401,7 @@ function RoomsPanel({ canEdit }: { canEdit: boolean }) {
                     const n = Number(e.target.value);
                     if (n && n !== r.price_per_night) updateField(r.id, { price_per_night: n });
                   }}
-                  className="w-32"
+                  className="w-28 sm:w-32"
                 />
               </div>
             )}
@@ -396,7 +425,7 @@ type MsgRow = {
 };
 
 type Conversation = {
-  key: string;            // either user_id or guest_session_id
+  key: string;
   isGuest: boolean;
   name: string;
   phone: string | null;
@@ -410,6 +439,8 @@ function MessagesPanel() {
   const [thread, setThread] = useState<MsgRow[]>([]);
   const [body, setBody] = useState("");
   const [me, setMe] = useState<string>("");
+  // On mobile: show list or thread, not both
+  const [mobileView, setMobileView] = useState<"list" | "thread">("list");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setMe(data.session?.user.id ?? ""));
@@ -480,33 +511,22 @@ function MessagesPanel() {
         if (active) loadThread(active);
       })
       .subscribe();
-    return () => {
-      supabase.removeChannel(ch);
-    };
+    return () => { supabase.removeChannel(ch); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active?.key]);
 
   const openConv = (c: Conversation) => {
     setActive(c);
     loadThread(c);
+    setMobileView("thread");
   };
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!active || !body.trim()) return;
     const payload = active.isGuest
-      ? {
-          body: body.trim(),
-          sender_id: me,
-          guest_session_id: active.key,
-          guest_name: active.name,
-          guest_phone: active.phone,
-        }
-      : {
-          body: body.trim(),
-          sender_id: me,
-          conversation_user_id: active.key,
-        };
+      ? { body: body.trim(), sender_id: me, guest_session_id: active.key, guest_name: active.name, guest_phone: active.phone }
+      : { body: body.trim(), sender_id: me, conversation_user_id: active.key };
     const { error } = await supabase.from("messages").insert(payload);
     if (error) return toast.error(error.message);
     setBody("");
@@ -514,53 +534,55 @@ function MessagesPanel() {
   };
 
   return (
-    <div className="grid gap-4 md:grid-cols-[280px_1fr]">
-      <aside className="rounded-xl border border-border bg-card p-2">
-        {conversations.length === 0 && (
-          <p className="p-2 text-sm text-muted-foreground">No conversations yet.</p>
-        )}
-        {conversations.map((c) => (
-          <button
-            key={c.key}
-            onClick={() => openConv(c)}
-            className={`block w-full rounded-lg p-2 text-left text-sm transition ${
-              active?.key === c.key ? "bg-primary/10" : "hover:bg-muted"
-            }`}
-          >
-            <div className="flex items-center justify-between gap-2">
-              <span className="font-medium text-foreground truncate">{c.name}</span>
-              {c.isGuest && <Badge variant="secondary" className="text-[10px]">Guest</Badge>}
-            </div>
-            {c.phone && <div className="text-xs text-primary">{c.phone}</div>}
-            <div className="truncate text-xs text-muted-foreground">{c.last}</div>
-          </button>
-        ))}
-      </aside>
-      <div className="flex h-[60vh] flex-col rounded-xl border border-border bg-card">
-        {!active ? (
-          <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
-            Pick a conversation to view messages.
+    <>
+      {/* ── Mobile: stacked views with back button ── */}
+      <div className="md:hidden">
+        {mobileView === "list" ? (
+          <div className="rounded-xl border border-border bg-card p-2">
+            {conversations.length === 0 && (
+              <p className="p-2 text-sm text-muted-foreground">No conversations yet.</p>
+            )}
+            {conversations.map((c) => (
+              <button
+                key={c.key}
+                onClick={() => openConv(c)}
+                className={`block w-full rounded-lg p-3 text-left text-sm transition ${
+                  active?.key === c.key ? "bg-primary/10" : "hover:bg-muted"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="truncate font-medium text-foreground">{c.name}</span>
+                  {c.isGuest && <Badge variant="secondary" className="text-[10px]">Guest</Badge>}
+                </div>
+                {c.phone && <div className="text-xs text-primary">{c.phone}</div>}
+                <div className="truncate text-xs text-muted-foreground">{c.last}</div>
+              </button>
+            ))}
           </div>
         ) : (
-          <>
-            <div className="border-b border-border p-3 text-sm">
-              <span className="font-semibold">{active.name}</span>
-              {active.phone && (
-                <a href={`tel:${active.phone}`} className="ml-2 text-primary hover:underline">
+          <div className="flex h-[70vh] flex-col rounded-xl border border-border bg-card">
+            <div className="flex items-center gap-3 border-b border-border p-3">
+              <button
+                onClick={() => setMobileView("list")}
+                className="text-sm text-primary hover:underline"
+              >
+                ← Back
+              </button>
+              <span className="font-semibold text-sm">{active?.name}</span>
+              {active?.phone && (
+                <a href={`tel:${active.phone}`} className="ml-auto text-sm text-primary hover:underline">
                   {active.phone}
                 </a>
               )}
             </div>
-            <div className="flex-1 space-y-2 overflow-y-auto p-4">
+            <div className="flex-1 space-y-2 overflow-y-auto p-3">
               {thread.map((m) => {
                 const mine = !!m.sender_id && m.sender_id === me;
                 return (
                   <div
                     key={m.id}
-                    className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
-                      mine
-                        ? "ml-auto bg-primary text-primary-foreground"
-                        : "bg-muted text-foreground"
+                    className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${
+                      mine ? "ml-auto bg-primary text-primary-foreground" : "bg-muted text-foreground"
                     }`}
                   >
                     {m.body}
@@ -573,13 +595,80 @@ function MessagesPanel() {
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 placeholder="Type a reply..."
+                className="flex-1"
               />
-              <Button type="submit">Send</Button>
+              <Button type="submit" size="sm">Send</Button>
             </form>
-          </>
+          </div>
         )}
       </div>
-    </div>
+
+      {/* ── Desktop: side-by-side ── */}
+      <div className="hidden md:grid md:grid-cols-[280px_1fr] md:gap-4">
+        <aside className="rounded-xl border border-border bg-card p-2">
+          {conversations.length === 0 && (
+            <p className="p-2 text-sm text-muted-foreground">No conversations yet.</p>
+          )}
+          {conversations.map((c) => (
+            <button
+              key={c.key}
+              onClick={() => openConv(c)}
+              className={`block w-full rounded-lg p-2 text-left text-sm transition ${
+                active?.key === c.key ? "bg-primary/10" : "hover:bg-muted"
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="truncate font-medium text-foreground">{c.name}</span>
+                {c.isGuest && <Badge variant="secondary" className="text-[10px]">Guest</Badge>}
+              </div>
+              {c.phone && <div className="text-xs text-primary">{c.phone}</div>}
+              <div className="truncate text-xs text-muted-foreground">{c.last}</div>
+            </button>
+          ))}
+        </aside>
+        <div className="flex h-[60vh] flex-col rounded-xl border border-border bg-card">
+          {!active ? (
+            <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
+              Pick a conversation to view messages.
+            </div>
+          ) : (
+            <>
+              <div className="border-b border-border p-3 text-sm">
+                <span className="font-semibold">{active.name}</span>
+                {active.phone && (
+                  <a href={`tel:${active.phone}`} className="ml-2 text-primary hover:underline">
+                    {active.phone}
+                  </a>
+                )}
+              </div>
+              <div className="flex-1 space-y-2 overflow-y-auto p-4">
+                {thread.map((m) => {
+                  const mine = !!m.sender_id && m.sender_id === me;
+                  return (
+                    <div
+                      key={m.id}
+                      className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
+                        mine ? "ml-auto bg-primary text-primary-foreground" : "bg-muted text-foreground"
+                      }`}
+                    >
+                      {m.body}
+                    </div>
+                  );
+                })}
+              </div>
+              <form onSubmit={send} className="flex gap-2 border-t border-border p-3">
+                <Input
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  placeholder="Type a reply..."
+                />
+                <Button type="submit">Send</Button>
+              </form>
+            </>
+          )}
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -593,9 +682,7 @@ function ReviewsPanel() {
       .order("created_at", { ascending: false });
     setReviews((data as ReviewRow[]) ?? []);
   };
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
   const setApproved = async (id: string, approved: boolean) => {
     const { error } = await supabase.from("reviews").update({ approved }).eq("id", id);
@@ -603,10 +690,12 @@ function ReviewsPanel() {
     toast.success(approved ? "Approved" : "Hidden");
     load();
   };
+
   const remove = async (id: string) => {
     if (!confirm("Delete this review?")) return;
     const { error } = await supabase.from("reviews").delete().eq("id", id);
     if (error) return toast.error(error.message);
+    toast.success("Deleted");
     load();
   };
 
@@ -615,27 +704,36 @@ function ReviewsPanel() {
       {reviews.length === 0 && <p className="text-muted-foreground">No reviews yet.</p>}
       {reviews.map((r) => (
         <article key={r.id} className="rounded-xl border border-border bg-card p-4 shadow-sm">
-          <div className="flex items-center justify-between gap-2">
-            <div>
-              <div className="font-semibold">{r.guest_name}</div>
-              <div className="text-amber-500">{"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}</div>
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-semibold">{r.guest_name}</span>
+                <span className="text-sm text-yellow-500">{"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}</span>
+                <Badge variant={r.approved ? "default" : "secondary"}>
+                  {r.approved ? "Approved" : "Hidden"}
+                </Badge>
+              </div>
+              {r.comment && <p className="mt-2 text-sm text-foreground">{r.comment}</p>}
+              <p className="mt-1 text-xs text-muted-foreground">
+                {new Date(r.created_at).toLocaleDateString()}
+              </p>
             </div>
-            <Badge variant={r.approved ? "default" : "secondary"}>
-              {r.approved ? "Visible" : "Pending"}
-            </Badge>
           </div>
-          {r.comment && <p className="mt-2 text-sm text-foreground">{r.comment}</p>}
           <div className="mt-3 flex flex-wrap gap-2">
-            {r.approved ? (
-              <Button size="sm" variant="outline" onClick={() => setApproved(r.id, false)}>
-                Hide
-              </Button>
-            ) : (
-              <Button size="sm" onClick={() => setApproved(r.id, true)}>
-                Approve
-              </Button>
-            )}
-            <Button size="sm" variant="outline" onClick={() => remove(r.id)}>
+            <Button
+              size="sm"
+              variant={r.approved ? "outline" : "default"}
+              className="flex-1 sm:flex-none"
+              onClick={() => setApproved(r.id, !r.approved)}
+            >
+              {r.approved ? "Hide" : "Approve"}
+            </Button>
+            <Button
+              size="sm"
+              variant="destructive"
+              className="flex-1 sm:flex-none"
+              onClick={() => remove(r.id)}
+            >
               <Trash2 className="mr-1 h-4 w-4" /> Delete
             </Button>
           </div>
@@ -645,319 +743,257 @@ function ReviewsPanel() {
   );
 }
 
-/* ─────────────────  Staff management  ───────────────── */
-type GrantableRole = "staff" | "accountant" | "receptionist" | "manager";
-
-function StaffPanel({ isOwner }: { isOwner: boolean }) {
-  const [people, setPeople] = useState<(Profile & { roles: AppRole[] })[]>([]);
-  const [search, setSearch] = useState("");
-
-  const load = async () => {
-    const { data: profs } = await supabase.from("profiles").select("id, full_name, phone");
-    const { data: roles } = await supabase.from("user_roles").select("user_id, role");
-    const map: Record<string, AppRole[]> = {};
-    (roles as RoleRow[] | null)?.forEach((r) => {
-      map[r.user_id] = [...(map[r.user_id] ?? []), r.role];
-    });
-    setPeople(((profs as Profile[]) ?? []).map((p) => ({ ...p, roles: map[p.id] ?? [] })));
-  };
-  useEffect(() => {
-    load();
-  }, []);
-
-  const grant = async (uid: string, role: GrantableRole) => {
-    const { error } = await supabase.from("user_roles").insert({ user_id: uid, role });
-    if (error) return toast.error(error.message);
-    toast.success(`Granted ${role}.`);
-    load();
-  };
-  const revoke = async (uid: string, role: GrantableRole) => {
-    const { error } = await supabase
-      .from("user_roles")
-      .delete()
-      .eq("user_id", uid)
-      .eq("role", role);
-    if (error) return toast.error(error.message);
-    toast.success(`Revoked ${role}.`);
-    load();
-  };
-
-  const filtered = people.filter(
-    (p) =>
-      !search ||
-      (p.full_name ?? "").toLowerCase().includes(search.toLowerCase()) ||
-      (p.phone ?? "").includes(search),
-  );
-
-  const grantable: GrantableRole[] = isOwner
-    ? ["accountant", "receptionist", "staff", "manager"]
-    : ["accountant", "receptionist", "staff"];
-
-  return (
-    <div className="space-y-4">
-      <div>
-        <Label>Find a user by name or phone</Label>
-        <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search..." />
-        <p className="mt-1 text-xs text-muted-foreground">
-          Tip: ask the person to sign up first at{" "}
-          <Link to="/auth" className="text-primary underline">/auth</Link>, then assign their role here.
-          {!isOwner && " Only the owner can grant or revoke the manager role."}
-        </p>
-      </div>
-      <div className="space-y-3">
-        {filtered.map((p) => {
-          const isOwnerRow = p.roles.includes("owner");
-          return (
-            <article key={p.id} className="rounded-xl border border-border bg-card p-4 shadow-sm">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <div className="font-semibold">{p.full_name || "(no name)"}</div>
-                  <div className="text-sm text-muted-foreground">{p.phone}</div>
-                  <div className="mt-1 flex flex-wrap gap-1">
-                    {p.roles.map((r) => (
-                      <Badge key={r} variant="secondary" className="capitalize">{r}</Badge>
-                    ))}
-                  </div>
-                </div>
-                {isOwnerRow ? (
-                  <span className="text-xs text-muted-foreground">Owner — protected</span>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {grantable.map((r) =>
-                      p.roles.includes(r) ? (
-                        <Button
-                          key={r}
-                          size="sm"
-                          variant="outline"
-                          onClick={() => revoke(p.id, r)}
-                        >
-                          Remove {r}
-                        </Button>
-                      ) : (
-                        <Button key={r} size="sm" onClick={() => grant(p.id, r)}>
-                          Make {r}
-                        </Button>
-                      ),
-                    )}
-                  </div>
-                )}
-              </div>
-            </article>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-/* ─────────────────  Transactions (accountant + manager + owner)  ───────────────── */
+/* ─────────────────  Transactions  ───────────────── */
 function TransactionsPanel({ canEdit }: { canEdit: boolean }) {
-  const [tx, setTx] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
     amount: "",
-    payment_date: new Date().toISOString().slice(0, 10),
+    payment_date: "",
     payment_method: "cash",
     description: "",
+    booking_id: "",
   });
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("transactions")
       .select("*")
-      .order("payment_date", { ascending: false })
-      .order("created_at", { ascending: false });
-    if (error) toast.error(error.message);
-    setTx((data as Transaction[]) ?? []);
+      .order("payment_date", { ascending: false });
+    setTransactions((data as Transaction[]) ?? []);
     setLoading(false);
   };
-  useEffect(() => {
-    load();
-  }, []);
 
-  const submit = async (e: FormEvent<HTMLFormElement>) => {
+  useEffect(() => { load(); }, []);
+
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
     const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) return toast.error("Sign in required.");
-    const amount = Number(form.amount);
-    if (!amount || amount <= 0) return toast.error("Enter a valid amount.");
-    if (!form.description.trim()) return toast.error("Add a description.");
+    const uid = sess.session?.user.id;
     const { error } = await supabase.from("transactions").insert({
-      amount,
+      amount: Number(form.amount),
       payment_date: form.payment_date,
       payment_method: form.payment_method,
-      description: form.description.trim(),
-      recorded_by: sess.session.user.id,
+      description: form.description,
+      booking_id: form.booking_id || null,
+      recorded_by: uid,
     });
     if (error) return toast.error(error.message);
     toast.success("Transaction recorded.");
-    setForm({ ...form, amount: "", description: "" });
+    setForm({ amount: "", payment_date: "", payment_method: "cash", description: "", booking_id: "" });
     load();
   };
-
-  const remove = async (id: string) => {
-    if (!confirm("Delete this transaction?")) return;
-    const { error } = await supabase.from("transactions").delete().eq("id", id);
-    if (error) return toast.error(error.message);
-    load();
-  };
-
-  const total = tx.reduce((s, t) => s + Number(t.amount), 0);
 
   return (
     <div className="space-y-6">
-      <form
-        onSubmit={submit}
-        className="grid gap-3 rounded-xl border border-border bg-card p-4 shadow-sm sm:grid-cols-2"
-      >
-        <div>
-          <Label>Amount (RWF)</Label>
-          <Input
-            type="number"
-            min="0"
-            step="100"
-            value={form.amount}
-            onChange={(e) => setForm({ ...form, amount: e.target.value })}
-            required
-          />
-        </div>
-        <div>
-          <Label>Date</Label>
-          <Input
-            type="date"
-            value={form.payment_date}
-            onChange={(e) => setForm({ ...form, payment_date: e.target.value })}
-            required
-          />
-        </div>
-        <div>
-          <Label>Payment method</Label>
-          <select
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            value={form.payment_method}
-            onChange={(e) => setForm({ ...form, payment_method: e.target.value })}
-          >
-            <option value="cash">Cash</option>
-            <option value="momo">Mobile Money</option>
-            <option value="bank">Bank transfer</option>
-            <option value="card">Card</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div className="sm:col-span-2">
-          <Label>Description</Label>
-          <Input
-            placeholder="e.g. Room 12 — 2 nights, guest John"
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            required
-          />
-        </div>
-        <div className="sm:col-span-2">
-          <Button type="submit">Record transaction</Button>
-        </div>
-      </form>
-
-      <div>
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="font-serif text-lg font-bold">Recent transactions</h3>
-          <span className="text-sm text-muted-foreground">
-            Total: <span className="font-semibold text-foreground">RWF {total.toLocaleString()}</span>
-          </span>
-        </div>
-        {loading ? (
-          <p className="text-muted-foreground">Loading...</p>
-        ) : tx.length === 0 ? (
-          <p className="text-muted-foreground">No transactions yet.</p>
-        ) : (
-          <div className="space-y-2">
-            {tx.map((t) => (
-              <article
-                key={t.id}
-                className="flex flex-wrap items-start justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-sm"
+      {canEdit && (
+        <form onSubmit={submit} className="rounded-xl border border-border bg-card p-4">
+          <h3 className="mb-3 font-semibold">Record Transaction</h3>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <Label>Amount (RWF)</Label>
+              <Input
+                type="number"
+                value={form.amount}
+                onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <Label>Date</Label>
+              <Input
+                type="date"
+                value={form.payment_date}
+                onChange={(e) => setForm({ ...form, payment_date: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <Label>Method</Label>
+              <select
+                value={form.payment_method}
+                onChange={(e) => setForm({ ...form, payment_method: e.target.value })}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               >
-                <div>
-                  <div className="font-semibold text-foreground">{t.description}</div>
-                  <div className="mt-0.5 text-xs text-muted-foreground">
-                    {t.payment_date} · {t.payment_method}
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-lg font-bold text-primary">
-                    RWF {Number(t.amount).toLocaleString()}
-                  </div>
-                  {canEdit && (
-                    <Button size="sm" variant="outline" onClick={() => remove(t.id)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              </article>
-            ))}
+                <option value="cash">Cash</option>
+                <option value="mobile_money">Mobile Money</option>
+                <option value="card">Card</option>
+                <option value="bank_transfer">Bank Transfer</option>
+              </select>
+            </div>
+            <div>
+              <Label>Booking ID (optional)</Label>
+              <Input
+                value={form.booking_id}
+                onChange={(e) => setForm({ ...form, booking_id: e.target.value })}
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <Label>Description</Label>
+              <Input
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                required
+              />
+            </div>
           </div>
-        )}
-      </div>
+          <Button type="submit" className="mt-4 w-full sm:w-auto">
+            Save Transaction
+          </Button>
+        </form>
+      )}
+
+      {loading ? (
+        <p className="text-muted-foreground">Loading...</p>
+      ) : (
+        <div className="space-y-3">
+          {transactions.map((t) => (
+            <article key={t.id} className="rounded-xl border border-border bg-card p-4 shadow-sm">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium">{t.description}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">
+                    {t.payment_date} · {t.payment_method}
+                    {t.booking_id && ` · Booking: ${t.booking_id}`}
+                  </div>
+                </div>
+                <div className="shrink-0 text-right font-bold text-primary">
+                  RWF {Number(t.amount).toLocaleString()}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-/* ─────────────────  Role passkeys (owner only)  ───────────────── */
-function PasskeysPanel() {
-  const [rows, setRows] = useState<PasskeyRow[]>([]);
-  const [edits, setEdits] = useState<Record<string, string>>({});
+/* ─────────────────  Staff management  ───────────────── */
+function StaffPanel({ isOwner }: { isOwner: boolean }) {
+  const [users, setUsers] = useState<{ profile: Profile; roles: AppRole[] }[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const load = async () => {
-    const { data, error } = await supabase
-      .from("role_passkeys")
-      .select("role, passkey")
-      .order("role");
-    if (error) return toast.error(error.message);
-    setRows((data as PasskeyRow[]) ?? []);
-  };
-  useEffect(() => {
-    load();
-  }, []);
+    setLoading(true);
+    const { data: roleRows } = await supabase.from("user_roles").select("user_id, role");
+    if (!roleRows) { setLoading(false); return; }
 
-  const save = async (role: AppRole) => {
-    const newKey = (edits[role] ?? "").trim();
-    if (!newKey || newKey.length < 6) return toast.error("Passkey must be at least 6 characters.");
-    const { error } = await supabase
-      .from("role_passkeys")
-      .update({ passkey: newKey, updated_at: new Date().toISOString() })
-      .eq("role", role);
+    const uids = [...new Set(roleRows.map((r) => r.user_id))];
+    const { data: profiles } = await supabase.from("profiles").select("id, full_name, phone").in("id", uids);
+
+    const map = new Map<string, { profile: Profile; roles: AppRole[] }>();
+    profiles?.forEach((p) => map.set(p.id, { profile: p as Profile, roles: [] }));
+    roleRows.forEach((r) => {
+      const entry = map.get(r.user_id);
+      if (entry) entry.roles.push(r.role as AppRole);
+    });
+    setUsers([...map.values()]);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const removeRole = async (userId: string, role: AppRole) => {
+    if (!confirm(`Remove role "${role}" from this user?`)) return;
+    const { error } = await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", role);
     if (error) return toast.error(error.message);
-    toast.success(`Passkey for ${role} updated.`);
-    setEdits({ ...edits, [role]: "" });
+    toast.success("Role removed.");
     load();
   };
 
   return (
-    <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        Share these passkeys with new staff. They enter the passkey when signing up and are
-        automatically given the matching role. Change them anytime — old passkeys stop working
-        immediately.
-      </p>
-      <div className="space-y-3">
-        {rows.map((r) => (
-          <article key={r.role} className="rounded-xl border border-border bg-card p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <Badge className="uppercase">{r.role}</Badge>
-              <code className="rounded bg-muted px-2 py-0.5 text-sm">{r.passkey}</code>
+    <div className="space-y-3">
+      {loading && <p className="text-muted-foreground">Loading...</p>}
+      {users.map(({ profile, roles }) => (
+        <article key={profile.id} className="rounded-xl border border-border bg-card p-4 shadow-sm">
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <div className="font-semibold">{profile.full_name || "Unnamed"}</div>
+              {profile.phone && <div className="text-sm text-muted-foreground">{profile.phone}</div>}
             </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Input
-                placeholder="New passkey..."
-                value={edits[r.role] ?? ""}
-                onChange={(e) => setEdits({ ...edits, [r.role]: e.target.value })}
-                className="max-w-xs"
-              />
-              <Button size="sm" onClick={() => save(r.role)}>
-                Update
-              </Button>
+            <div className="flex flex-wrap gap-1">
+              {roles.map((role) => (
+                <div key={role} className="flex items-center gap-1">
+                  <Badge variant="secondary" className="capitalize">{role}</Badge>
+                  {isOwner && (
+                    <button
+                      onClick={() => removeRole(profile.id, role)}
+                      className="text-destructive hover:opacity-70"
+                      title={`Remove ${role}`}
+                    >
+                      <XCircle className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
             </div>
-          </article>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+/* ─────────────────  Passkeys  ───────────────── */
+function PasskeysPanel() {
+  const [passkeys, setPasskeys] = useState<PasskeyRow[]>([]);
+  const [form, setForm] = useState<{ role: AppRole; passkey: string }>({ role: "staff", passkey: "" });
+
+  const load = async () => {
+    const { data } = await supabase.from("role_passkeys").select("role, passkey");
+    setPasskeys((data as PasskeyRow[]) ?? []);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const save = async (e: FormEvent) => {
+    e.preventDefault();
+    const { error } = await supabase
+      .from("role_passkeys")
+      .upsert({ role: form.role, passkey: form.passkey }, { onConflict: "role" });
+    if (error) return toast.error(error.message);
+    toast.success("Passkey saved.");
+    load();
+  };
+
+  return (
+    <div className="space-y-6">
+      <form onSubmit={save} className="rounded-xl border border-border bg-card p-4">
+        <h3 className="mb-3 font-semibold">Set Role Passkey</h3>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <Label>Role</Label>
+            <select
+              value={form.role}
+              onChange={(e) => setForm({ ...form, role: e.target.value as AppRole })}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              {(["staff", "receptionist", "accountant", "manager"] as AppRole[]).map((r) => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <Label>Passkey</Label>
+            <Input
+              type="password"
+              value={form.passkey}
+              onChange={(e) => setForm({ ...form, passkey: e.target.value })}
+              required
+            />
+          </div>
+        </div>
+        <Button type="submit" className="mt-4 w-full sm:w-auto">Save Passkey</Button>
+      </form>
+
+      <div className="space-y-2">
+        {passkeys.map((p) => (
+          <div key={p.role} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-card px-4 py-3">
+            <Badge className="capitalize">{p.role}</Badge>
+            <span className="font-mono text-sm tracking-widest text-muted-foreground">••••••••</span>
+          </div>
         ))}
       </div>
     </div>
