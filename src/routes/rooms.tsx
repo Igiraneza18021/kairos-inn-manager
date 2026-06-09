@@ -39,7 +39,6 @@ function RoomsPage() {
   const [available, setAvailable] = useState<{ standard: number; family: boolean } | null>(null);
 
   useEffect(() => {
-    // Just fetch counts of active rooms — booking-availability check comes later
     supabase
       .from("rooms")
       .select("room_type")
@@ -59,7 +58,7 @@ function RoomsPage() {
       title: "Standard Room",
       price: 25000,
       description:
-        "A comfortable single room with a fan, private bathroom, work desk, wardrobe and free WiFi. Breakfast included.",
+        "A carefully designed single sanctuary featuring natural cooling, private stone bath, custom wood work desk, dedicated wardrobe, and high-speed connection. Complete with a traditional fresh breakfast served daily.",
       image: roomStandard,
       bookHref: "/book?type=standard",
     },
@@ -68,81 +67,115 @@ function RoomsPage() {
       title: "Family Suite (112A + 112B)",
       price: 110000,
       description:
-        "Two connected rooms booked together — two beds, two private bathrooms. Ideal for families or small groups.",
+        "Two interconnected private structural quarters reserved together. Outfitted with premium dual bedding and twin individual private baths. Masterfully arranged for families or traveling companions.",
       image: roomFamily,
       bookHref: "/book?type=family_suite",
     },
   ];
 
   const amenities = [Wifi, Fan, Bath, BedDouble, Briefcase, Coffee];
-  const amenityLabels = ["WiFi", "Fan", "Private Bath", "Bed", "Work Desk", "Breakfast"];
+  const amenityLabels = ["WiFi", "Cooling Fan", "Private Bath", "Plush Bed", "Work Desk", "Breakfast"];
 
   return (
     <SiteLayout>
-      <section className="border-b border-border bg-secondary/40">
-        <div className="mx-auto max-w-6xl px-4 py-12">
-          <h1 className="font-serif text-4xl font-bold text-foreground">Rooms & Rates</h1>
-          <p className="mt-2 text-muted-foreground">
-            All rooms include free WiFi, fan, private bathroom, work desk, wardrobe, and breakfast.
-          </p>
-        </div>
-      </section>
+      <div className="bg-[#fbf9f4] text-[#2c2520] min-h-screen">
+        
+        {/* --- PAGE HEADER --- */}
+        <section className="bg-[#faf6ee] border-b border-[#af8f52]/20">
+          <div className="mx-auto max-w-6xl px-6 py-16 text-center md:text-left">
+            <span className="text-xs font-bold tracking-[0.3em] text-[#af8f52] block mb-2">ACCOMMODATIONS</span>
+            <h1 className="font-serif text-4xl font-normal tracking-wide text-[#2c2520] md:text-5xl">
+              Our Rooms & Rates
+            </h1>
+            <div className="w-16 h-[1px] bg-[#af8f52] my-4 mx-auto md:mx-0" />
+            <p className="max-w-2xl font-serif italic text-sm text-muted-foreground leading-relaxed">
+              Every private quarter is provisioned with curated modern essentials, woven seamlessly with authentic regional comfort and a fresh morning breakfast.
+            </p>
+          </div>
+        </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-12">
-        <div className="grid gap-8 md:grid-cols-2">
-          {cards.map((c) => (
-            <article
-              key={c.key}
-              className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:shadow-md"
-            >
-              <img
-                src={c.image}
-                alt={c.title}
-                loading="lazy"
-                width={1280}
-                height={896}
-                className="h-64 w-full object-cover"
-              />
-              <div className="p-6">
-                <div className="flex items-baseline justify-between gap-3">
-                  <h2 className="font-serif text-2xl font-bold text-foreground">{c.title}</h2>
-                  <div className="text-right">
-                    <div className="text-xl font-bold text-primary">
+        {/* --- ROOMS LIST --- */}
+        <section className="mx-auto max-w-6xl px-6 py-16">
+          <div className="grid gap-12 md:grid-cols-2">
+            {cards.map((c) => (
+              <article
+                key={c.key}
+                className="overflow-hidden rounded-none border border-[#af8f52]/20 bg-[#fbf9f4] transition-all duration-300 hover:border-[#af8f52] hover:shadow-md flex flex-col"
+              >
+                {/* Image Container with Price Badge */}
+                <div className="relative overflow-hidden group">
+                  <img
+                    src={c.image}
+                    alt={c.title}
+                    loading="lazy"
+                    width={1280}
+                    height={896}
+                    className="h-72 w-full object-cover transition-transform duration-700 group-hover:scale-105 filter brightness-[0.95]"
+                  />
+                  <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-black/50 to-transparent" />
+                  <div className="absolute top-4 right-4 bg-[#2c2520] border border-[#af8f52] px-4 py-2 text-center shadow-md">
+                    <span className="font-serif text-sm font-semibold text-[#e0cfb3] tracking-wider block">
                       RWF {c.price.toLocaleString()}
-                    </div>
-                    <div className="text-xs text-muted-foreground">per night</div>
+                    </span>
+                    <span className="text-[10px] uppercase tracking-widest text-[#fbf9f4]/60 block mt-0.5">
+                      per night
+                    </span>
                   </div>
                 </div>
-                <p className="mt-3 text-sm text-muted-foreground">{c.description}</p>
 
-                <div className="mt-4 flex flex-wrap gap-3">
-                  {amenities.map((Icon, i) => (
-                    <span
-                      key={i}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs text-foreground"
-                    >
-                      <Icon className="h-3.5 w-3.5 text-primary" />
-                      {amenityLabels[i]}
-                    </span>
-                  ))}
+                {/* Content Details */}
+                <div className="p-8 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h2 className="font-serif text-2xl font-normal text-[#2c2520] mb-3">
+                      {c.title}
+                    </h2>
+                    <p className="font-serif text-sm italic text-muted-foreground leading-relaxed mb-6">
+                      {c.description}
+                    </p>
+
+                    {/* Classic Architectural Grid Amenities */}
+                    <div className="border-t border-b border-[#af8f52]/10 py-4 my-6">
+                      <span className="text-[10px] font-bold tracking-[0.2em] text-[#af8f52] block mb-3 uppercase">Suite Provisions:</span>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+                        {amenities.map((Icon, i) => (
+                          <div key={i} className="flex items-center gap-2.5 text-[#2c2520]/80">
+                            <Icon className="h-4 w-4 text-[#af8f52]/80 shrink-0" />
+                            <span className="font-serif text-xs font-medium tracking-wide">
+                              {amenityLabels[i]}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footnote & Action Button */}
+                  <div>
+                    {c.key === "standard" && available && (
+                      <div className="flex items-center gap-2 mb-4 bg-[#faf6ee] border border-[#af8f52]/10 p-2.5 text-center justify-center">
+                        <span className="text-[#af8f52] text-[9px]">◆</span>
+                        <p className="font-serif text-xs italic text-[#af8f52]">
+                          {available.standard} structural standard rooms currently active (Suites 101–111)
+                        </p>
+                        <span className="text-[#af8f52] text-[9px]">◆</span>
+                      </div>
+                    )}
+
+                    <div className="mt-4">
+                      <Link to={c.bookHref}>
+                        <Button className="w-full bg-gradient-to-b from-[#c5a86a] to-[#af8f52] text-[#fbf9f4] font-serif tracking-widest rounded-none py-6 border border-[#af8f52] hover:brightness-110 transition-all shadow-sm">
+                          ARRANGE RESERVATION
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
                 </div>
+              </article>
+            ))}
+          </div>
+        </section>
 
-                {c.key === "standard" && available && (
-                  <p className="mt-4 text-xs text-muted-foreground">
-                    {available.standard} standard rooms available (101–111).
-                  </p>
-                )}
-
-                <div className="mt-6">
-                  <Link to={c.bookHref}>
-                    <Button className="w-full sm:w-auto">Book this room</Button>
-                  </Link>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
+      </div>
     </SiteLayout>
   );
 }

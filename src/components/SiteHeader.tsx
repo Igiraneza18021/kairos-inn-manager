@@ -20,70 +20,100 @@ export function SiteHeader() {
   }, []);
 
   const nav = [
-    { to: "/", label: "Home" },
-    { to: "/rooms", label: "Rooms" },
-    { to: "/reviews", label: "Reviews" },
-    { to: "/contact", label: "Contact" },
+    { to: "/", label: "HOME" },
+    { to: "/rooms", label: "ROOMS" },
+    { to: "/reviews", label: "REVIEWS" },
+    { to: "/contact", label: "CONTACT" },
   ];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-        <Link to="/" className="hover:opacity-90">
-          <Logo />
+    <header className="sticky top-0 z-40 bg-[#fbf9f4]/95 text-[#2c2520] backdrop-blur-md shadow-sm">
+      {/* Visual Accent: Thin gold top-bar accent */}
+      <div className="h-[3px] w-full bg-gradient-to-r from-transparent via-[#af8f52] to-transparent" />
+
+      <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-6">
+        {/* Logo container with ancient frame hover effect */}
+        <Link to="/" className="transition-transform duration-300 hover:scale-105">
+          <div className="p-1 border border-transparent hover:border-[#af8f52]/40 rounded-sm">
+            <Logo />
+          </div>
         </Link>
-        <nav className="hidden items-center gap-6 md:flex">
-          {nav.map((n) => (
-            <Link
-              key={n.to}
-              to={n.to}
-              className="text-sm font-medium text-foreground/80 hover:text-primary"
-              activeProps={{ className: "text-primary" }}
-            >
-              {n.label}
-            </Link>
+
+        {/* Navigation for Desktop */}
+        <nav className="hidden items-center gap-2 md:flex font-serif tracking-widest text-xs font-semibold">
+          {nav.map((n, idx) => (
+            <div key={n.to} className="flex items-center">
+              {idx > 0 && <span className="mx-3 text-[#af8f52]/40 text-[9px]">◆</span>}
+              <Link
+                to={n.to}
+                className="relative py-1 text-[#2c2520]/80 transition-colors duration-300 hover:text-[#af8f52]"
+                activeProps={{ className: "text-[#af8f52] after:scale-x-100" }}
+              >
+                {n.label}
+                {/* Elegant underline animation */}
+                <span className="absolute bottom-0 left-0 h-[1px] w-full scale-x-0 bg-[#af8f52] transition-transform duration-300 origin-center hover:scale-x-100" />
+              </Link>
+            </div>
           ))}
-          {user ? (
-            <Link to="/account">
-              <Button size="sm">My Account</Button>
-            </Link>
-          ) : (
-            <Link to="/auth">
-              <Button size="sm">Sign In</Button>
-            </Link>
-          )}
+
+          {/* Premium Metallic Button styling */}
+          <div className="ml-6 pl-6 border-l border-[#af8f52]/20">
+            {user ? (
+              <Link to="/account">
+                <Button size="sm" className="bg-gradient-to-b from-[#c5a86a] to-[#af8f52] text-[#fbf9f4] font-serif tracking-wider hover:brightness-110 shadow-sm rounded-none border border-[#af8f52]">
+                  MY ACCOUNT
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/auth">
+                <Button size="sm" className="bg-gradient-to-b from-[#c5a86a] to-[#af8f52] text-[#fbf9f4] font-serif tracking-wider hover:brightness-110 shadow-sm rounded-none border border-[#af8f52]">
+                  SIGN IN
+                </Button>
+              </Link>
+            )}
+          </div>
         </nav>
+
+        {/* Mobile Toggle Button */}
         <button
-          className="rounded p-2 md:hidden"
+          className="rounded p-2 text-[#2c2520] hover:text-[#af8f52] md:hidden transition-colors"
           onClick={() => setOpen((o) => !o)}
           aria-label="Toggle menu"
         >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
+
+      {/* Visual Accent: Ancient Double Border at header base */}
+      <div className="w-full border-b border-[#af8f52]/20">
+        <div className="w-full border-b-[3px] border-[#af8f52]/5" />
+      </div>
+
+      {/* Mobile Menu Panel */}
       {open && (
-        <div className="border-t border-border bg-background md:hidden">
-          <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3">
+        <div className="border-t border-[#af8f52]/20 bg-[#fbf9f4] shadow-inner md:hidden font-serif tracking-widest text-center">
+          <div className="mx-auto flex flex-col gap-2 px-6 py-4">
             {nav.map((n) => (
               <Link
                 key={n.to}
                 to={n.to}
                 onClick={() => setOpen(false)}
-                className="rounded px-2 py-2 text-sm font-medium hover:bg-muted"
+                className="rounded py-3 text-sm font-medium transition-colors hover:bg-[#af8f52]/10 hover:text-[#af8f52]"
               >
                 {n.label}
               </Link>
             ))}
+            <div className="h-[1px] my-2 bg-gradient-to-r from-transparent via-[#af8f52]/30 to-transparent" />
             {user ? (
               <Link to="/account" onClick={() => setOpen(false)}>
-                <Button className="w-full" size="sm">
-                  My Account
+                <Button className="w-full bg-gradient-to-b from-[#c5a86a] to-[#af8f52] text-[#fbf9f4] rounded-none" size="sm">
+                  MY ACCOUNT
                 </Button>
               </Link>
             ) : (
               <Link to="/auth" onClick={() => setOpen(false)}>
-                <Button className="w-full" size="sm">
-                  Sign In
+                <Button className="w-full bg-gradient-to-b from-[#c5a86a] to-[#af8f52] text-[#fbf9f4] rounded-none" size="sm">
+                  SIGN IN
                 </Button>
               </Link>
             )}

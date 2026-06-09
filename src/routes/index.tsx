@@ -29,158 +29,191 @@ export const Route = createFileRoute("/")({
 });
 
 const amenities = [
-  { icon: Wifi, label: "Free WiFi" },
-  { icon: Fan, label: "Fan" },
-  { icon: Bath, label: "Private Bathroom" },
-  { icon: BedDouble, label: "Comfortable Bed" },
-  { icon: Briefcase, label: "Work Desk" },
-  { icon: Coffee, label: "Breakfast Included" },
+  { icon: Wifi, label: "FREE WIFI" },
+  { icon: Fan, label: "COOLING FAN" },
+  { icon: Bath, label: "PRIVATE BATH" },
+  { icon: BedDouble, label: "LUXURY BED" },
+  { icon: Briefcase, label: "WORK DESK" },
+  { icon: Coffee, label: "BREAKFAST" },
 ];
 
 function HomePage() {
   return (
     <SiteLayout>
-      {/* Hero */}
-      <section className="relative isolate overflow-hidden">
-        <img
-          src={hero}
-          alt="Kairos Inn motel exterior at golden hour"
-          width={1920}
-          height={1088}
-          className="absolute inset-0 -z-10 h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-foreground/70 via-foreground/40 to-foreground/70" />
-        <div className="mx-auto flex min-h-[78vh] max-w-6xl flex-col items-start justify-center px-4 py-20 text-background">
-          <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-background/15 px-3 py-1 text-xs font-medium backdrop-blur">
-            <MapPin className="h-3.5 w-3.5" /> Karangazi · Nyagatare · Rwanda
-          </span>
-          <h1 className="font-serif text-4xl font-bold leading-tight md:text-6xl">
-            Welcome to Kairos Inn
-          </h1>
-          <p className="mt-4 max-w-xl text-lg text-background/90">
-            A warm, restful place to stay in Eastern Rwanda. Clean rooms, friendly service,
-            breakfast included.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/rooms">
-              <Button size="lg" className="bg-primary text-primary-foreground hover:opacity-90">
-                View Rooms & Book
-              </Button>
-            </Link>
-            <Link to="/contact">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-background/40 bg-background/10 text-background hover:bg-background/20"
+      <div className="bg-[#fbf9f4] text-[#2c2520] min-h-screen">
+        
+        {/* --- HERO SECTION --- */}
+        <section className="relative isolate overflow-hidden border-b border-[#af8f52]/20">
+          <img
+            src={hero}
+            alt="Kairos Inn motel exterior at golden hour"
+            width={1920}
+            height={1088}
+            className="absolute inset-0 -z-10 h-full w-full object-cover filter brightness-[0.7] sepia-[0.15]"
+          />
+          {/* Elegant overlay gradient evoking aging parchment shadows */}
+          <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/60 via-black/40 to-[#2c2520]/80" />
+          
+          <div className="mx-auto flex min-h-[90vh] max-w-5xl flex-col items-center text-center justify-center px-6 py-20 text-[#fbf9f4]">
+            <span className="mb-6 inline-flex items-center gap-2 border border-[#af8f52]/40 bg-[#2c2520]/60 px-4 py-1.5 font-serif text-xs uppercase tracking-[0.2em] text-[#e0cfb3] backdrop-blur-sm">
+              <MapPin className="h-3.5 w-3.5 text-[#af8f52]" /> Karangazi · Nyagatare · Rwanda
+            </span>
+            <h1 className="font-serif text-5xl font-light tracking-wide leading-tight md:text-7xl">
+              Welcome to <span className="block mt-2 font-normal italic text-[#e0cfb3]">Kairos Inn</span>
+            </h1>
+            <div className="w-24 h-[1px] bg-[#af8f52] my-6" />
+            <p className="max-w-2xl font-serif text-base md:text-lg text-[#fbf9f4]/80 leading-relaxed tracking-wide">
+              A timeless oasis of rest in Eastern Rwanda. Discover pristine lodging, 
+              genuine hospitality, and quiet comfort curated for the modern traveler.
+            </p>
+            
+            <div className="mt-10 flex flex-wrap justify-center gap-4">
+              <Link to="/rooms">
+                <Button size="lg" className="bg-gradient-to-b from-[#c5a86a] to-[#af8f52] text-[#fbf9f4] font-serif tracking-widest rounded-none px-8 hover:brightness-110 shadow-md border border-[#af8f52]">
+                  VIEW ROOMS & BOOK
+                </Button>
+              </Link>
+              <Link to="/contact">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-[#fbf9f4]/40 bg-white/5 text-[#fbf9f4] font-serif tracking-widest rounded-none px-8 hover:bg-[#fbf9f4]/10 hover:text-white transition-all"
+                >
+                  CONTACT RECEPTION
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* --- AMENITIES SECTION --- */}
+        <section className="mx-auto max-w-6xl px-6 py-20">
+          <div className="mb-14 text-center">
+            <span className="text-xs font-bold tracking-[0.3em] text-[#af8f52] block mb-2">PROVISIONS</span>
+            <h2 className="font-serif text-3xl font-normal text-[#2c2520] md:text-4xl">
+              Everything You Need
+            </h2>
+            <div className="flex items-center justify-center gap-2 mt-3">
+              <div className="w-12 h-[1px] bg-[#af8f52]/30" />
+              <span className="text-[#af8f52] text-xs">◆</span>
+              <div className="w-12 h-[1px] bg-[#af8f52]/30" />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-6">
+            {amenities.map((a) => (
+              <div
+                key={a.label}
+                className="flex flex-col items-center gap-3 rounded-none border border-[#af8f52]/20 bg-[#fbf9f4] p-6 text-center transition-all duration-300 hover:border-[#af8f52] hover:shadow-md group"
               >
-                Contact Reception
+                <div className="p-3 border border-[#af8f52]/10 bg-[#faf6ee] group-hover:bg-[#af8f52]/10 transition-colors">
+                  <a.icon className="h-5 w-5 text-[#af8f52]" />
+                </div>
+                <span className="font-serif text-xs font-semibold tracking-wider text-[#2c2520]/90">{a.label}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* --- ROOMS PREVIEW SECTION --- */}
+        <section className="bg-[#faf6ee] border-y border-[#af8f52]/10 py-20">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+              <div>
+                <span className="text-xs font-bold tracking-[0.3em] text-[#af8f52] block mb-2">SANCTUARY</span>
+                <h2 className="font-serif text-3xl font-normal text-[#2c2520] md:text-4xl">
+                  Our Private Rooms
+                </h2>
+              </div>
+              <Link to="/rooms" className="hidden md:inline">
+                <Button variant="outline" className="border-[#af8f52]/40 text-[#2c2520] font-serif tracking-widest rounded-none hover:bg-[#af8f52]/10">
+                  SEE ALL SUITES
+                </Button>
+              </Link>
+            </div>
+            
+            <div className="grid gap-8 md:grid-cols-2">
+              {/* Standard Room Card */}
+              <div className="overflow-hidden rounded-none border border-[#af8f52]/20 bg-[#fbf9f4] shadow-sm transition-all hover:shadow-md flex flex-col">
+                <div className="relative overflow-hidden">
+                  <img
+                    src={roomStandard}
+                    alt="Standard room at Kairos Inn"
+                    loading="lazy"
+                    className="h-64 w-full object-cover transition-transform duration-500 hover:scale-105"
+                  />
+                  <div className="absolute top-4 right-4 bg-[#2c2520] border border-[#af8f52] px-3 py-1 text-center">
+                    <span className="font-serif text-xs text-[#e0cfb3] tracking-wide block">RWF 25,000</span>
+                  </div>
+                </div>
+                <div className="p-6 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-serif text-2xl font-normal text-[#2c2520] mb-3">Standard Room</h3>
+                    <p className="text-sm font-serif italic text-muted-foreground leading-relaxed">
+                      11 rooms available (101–111). Outfitted with a plush single bed, dedicated private bathroom, and fully traditional fresh breakfast elements included daily.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Family Suite Card */}
+              <div className="overflow-hidden rounded-none border border-[#af8f52]/20 bg-[#fbf9f4] shadow-sm transition-all hover:shadow-md flex flex-col">
+                <div className="relative overflow-hidden">
+                  <img
+                    src={roomFamily}
+                    alt="Family Suite at Kairos Inn"
+                    loading="lazy"
+                    className="h-64 w-full object-cover transition-transform duration-500 hover:scale-105"
+                  />
+                  <div className="absolute top-4 right-4 bg-[#2c2520] border border-[#af8f52] px-3 py-1 text-center">
+                    <span className="font-serif text-xs text-[#e0cfb3] tracking-wide block">RWF 110,000</span>
+                  </div>
+                </div>
+                <div className="p-6 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-serif text-2xl font-normal text-[#2c2520] mb-3">Family Suite</h3>
+                    <p className="text-sm font-serif italic text-muted-foreground leading-relaxed">
+                      Two beautifully connected quarters (112A + 112B). Offers dual spacious beds, twin private bath amenities, and dynamic arrangements perfect for groups.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-10 text-center md:hidden">
+              <Link to="/rooms">
+                <Button variant="outline" className="w-full border-[#af8f52]/40 font-serif tracking-widest rounded-none">
+                  SEE ALL SUITES
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* --- TESTIMONIAL / BRAND PROMISE --- */}
+        <section className="mx-auto max-w-4xl px-6 py-24 text-center">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Star className="h-4 w-4 text-[#af8f52] fill-[#af8f52]/30" />
+            <Star className="h-5 w-5 text-[#af8f52] fill-[#af8f52]" />
+            <Star className="h-4 w-4 text-[#af8f52] fill-[#af8f52]/30" />
+          </div>
+          <span className="text-xs font-bold tracking-[0.4em] text-[#af8f52] block mb-2">EXPERIENCE</span>
+          <h2 className="font-serif text-3xl font-normal md:text-4xl italic text-[#2c2520]">
+            “Local hospitality, real comfort.”
+          </h2>
+          <p className="mt-6 font-serif max-w-2xl mx-auto text-base text-muted-foreground leading-relaxed">
+            Kairos Inn is tended to by native staff dedicated to the art of hosting. Whether your journey leads you through Nyagatare for professional ventures, regional transit, or family celebrations, we welcome you to find sanctuary within our stone.
+          </p>
+          <div className="mt-10">
+            <Link to="/rooms">
+              <Button size="lg" className="bg-gradient-to-b from-[#c5a86a] to-[#af8f52] text-[#fbf9f4] font-serif tracking-widest rounded-none px-10 hover:brightness-110 shadow-md border border-[#af8f52]">
+                RESERVE YOUR ROOM
               </Button>
             </Link>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Amenities */}
-      <section className="mx-auto max-w-6xl px-4 py-16">
-        <div className="mb-10 text-center">
-          <h2 className="font-serif text-3xl font-bold text-foreground md:text-4xl">
-            Everything you need
-          </h2>
-          <p className="mt-2 text-muted-foreground">
-            Every room comes with the essentials for a comfortable stay.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-          {amenities.map((a) => (
-            <div
-              key={a.label}
-              className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-5 text-center shadow-sm"
-            >
-              <a.icon className="h-6 w-6 text-primary" />
-              <span className="text-sm font-medium text-foreground">{a.label}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Rooms preview */}
-      <section className="bg-secondary/40 py-16">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="mb-10 flex items-end justify-between">
-            <div>
-              <h2 className="font-serif text-3xl font-bold text-foreground md:text-4xl">
-                Our Rooms
-              </h2>
-              <p className="mt-2 text-muted-foreground">Simple pricing. No surprises.</p>
-            </div>
-            <Link to="/rooms" className="hidden md:inline">
-              <Button variant="outline">See all rooms</Button>
-            </Link>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-              <img
-                src={roomStandard}
-                alt="Standard room at Kairos Inn"
-                loading="lazy"
-                className="h-56 w-full object-cover"
-              />
-              <div className="p-6">
-                <div className="flex items-baseline justify-between">
-                  <h3 className="font-serif text-xl font-bold">Standard Room</h3>
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-primary">RWF 25,000</div>
-                    <div className="text-xs text-muted-foreground">per night</div>
-                  </div>
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  11 rooms available (101–111). Single bed, private bathroom, breakfast included.
-                </p>
-              </div>
-            </div>
-            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-              <img
-                src={roomFamily}
-                alt="Family Suite at Kairos Inn"
-                loading="lazy"
-                className="h-56 w-full object-cover"
-              />
-              <div className="p-6">
-                <div className="flex items-baseline justify-between">
-                  <h3 className="font-serif text-xl font-bold">Family Suite</h3>
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-primary">RWF 110,000</div>
-                    <div className="text-xs text-muted-foreground">per night</div>
-                  </div>
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Two connected rooms (112A + 112B), two beds, two bathrooms. Perfect for families.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="mt-8 text-center md:hidden">
-            <Link to="/rooms">
-              <Button variant="outline">See all rooms</Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Why us */}
-      <section className="mx-auto max-w-4xl px-4 py-16 text-center">
-        <Star className="mx-auto h-8 w-8 text-accent" />
-        <h2 className="mt-3 font-serif text-3xl font-bold">Local hospitality, real comfort</h2>
-        <p className="mt-4 text-muted-foreground">
-          Kairos Inn is run by locals who care about every guest. Whether you're traveling for work,
-          visiting family, or passing through Nyagatare, we'll make sure you feel at home.
-        </p>
-        <div className="mt-8">
-          <Link to="/rooms">
-            <Button size="lg">Reserve Your Room</Button>
-          </Link>
-        </div>
-      </section>
+      </div>
     </SiteLayout>
   );
 }
