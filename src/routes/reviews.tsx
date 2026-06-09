@@ -86,76 +86,139 @@ function ReviewsPage() {
 
   return (
     <SiteLayout>
-      <section className="border-b border-border bg-secondary/40">
-        <div className="mx-auto max-w-4xl px-4 py-10">
-          <h1 className="font-serif text-3xl font-bold md:text-4xl">Guest Reviews</h1>
-          {avg && (
-            <p className="mt-2 text-sm text-muted-foreground">
-              <span className="font-bold text-foreground">{avg}/5</span> from {reviews.length} guest
-              {reviews.length === 1 ? "" : "s"}.
-            </p>
-          )}
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-4xl px-4 py-10">
-        <div className="grid gap-8 md:grid-cols-[1fr_320px]">
-          <div className="space-y-4">
-            {reviews.length === 0 && (
-              <p className="text-muted-foreground">Be the first to leave a review!</p>
+      <div className="bg-[#fbf9f4] text-[#2c2520] min-h-screen">
+        
+        {/* --- PAGE HEADER --- */}
+        <section className="bg-[#faf6ee] border-b border-[#af8f52]/20">
+          <div className="mx-auto max-w-5xl px-6 py-14 text-center md:text-left">
+            <span className="text-xs font-bold tracking-[0.3em] text-[#af8f52] block mb-2">CHRONICLES</span>
+            <h1 className="font-serif text-4xl font-normal tracking-wide text-[#2c2520] md:text-5xl">
+              Guest Testimonials
+            </h1>
+            <div className="w-16 h-[1px] bg-[#af8f52] my-4 mx-auto md:mx-0" />
+            
+            {avg && (
+              <div className="mt-2 flex items-center justify-center md:justify-start gap-2 font-serif text-sm text-muted-foreground">
+                <span>An average of</span>
+                <span className="font-semibold text-[#af8f52] px-1.5 py-0.5 bg-[#2c2520] text-[#fbf9f4] text-xs tracking-wider">
+                  {avg} / 5 STARS
+                </span>
+                <span>compiled from {reviews.length} preserved entry recorded.</span>
+              </div>
             )}
-            {reviews.map((r) => (
-              <article key={r.id} className="rounded-xl border border-border bg-card p-4 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div className="font-semibold">{r.guest_name}</div>
-                  <div className="text-amber-500">
-                    {"★".repeat(r.rating)}
-                    <span className="text-muted-foreground/50">{"★".repeat(5 - r.rating)}</span>
+          </div>
+        </section>
+
+        {/* --- CONTENT WORKSPACE --- */}
+        <section className="mx-auto max-w-5xl px-6 py-16">
+          <div className="grid gap-12 md:grid-cols-[1fr_340px] items-start">
+            
+            {/* Reviews Stream Container */}
+            <div className="space-y-8">
+              {reviews.length === 0 && (
+                <div className="text-center py-12 border border-dashed border-[#af8f52]/20 p-6">
+                  <p className="font-serif italic text-muted-foreground">The chronicle is currently empty. Be the first to grace our ledger.</p>
+                </div>
+              )}
+              
+              {reviews.map((r) => (
+                <article 
+                  key={r.id} 
+                  className="relative rounded-none border border-[#af8f52]/20 bg-[#fbf9f4] p-6 transition-all hover:border-[#af8f52]/40"
+                >
+                  {/* Structural Corner Accent Decoration */}
+                  <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#af8f52]/40" />
+                  
+                  <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[#af8f52]/10 pb-3">
+                    <div className="font-serif text-lg font-medium tracking-wide text-[#2c2520]">
+                      {r.guest_name}
+                    </div>
+                    <div className="tracking-widest text-xs text-[#af8f52] select-none">
+                      {"★".repeat(r.rating)}
+                      <span className="text-[#af8f52]/20">{"★".repeat(5 - r.rating)}</span>
+                    </div>
+                  </div>
+                  
+                  {r.comment && (
+                    <p className="mt-4 font-serif text-sm italic text-[#2c2520]/90 leading-relaxed pl-3 border-l border-[#af8f52]/20">
+                      “{r.comment}”
+                    </p>
+                  )}
+                  
+                  <div className="mt-4 text-[10px] font-sans uppercase tracking-[0.15em] text-muted-foreground/80 text-right">
+                    Recorded on {new Date(r.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {/* Inscription Form Panel (Aside Ledger) */}
+            <aside className="rounded-none border border-[#af8f52]/20 bg-[#faf6ee] p-6 shadow-sm sticky top-24">
+              <div className="text-center mb-6">
+                <h2 className="font-serif text-xl font-normal text-[#2c2520]">Sign the Ledger</h2>
+                <div className="flex items-center justify-center gap-1.5 mt-2">
+                  <div className="w-8 h-[1px] bg-[#af8f52]/30" />
+                  <span className="text-[#af8f52] text-[8px]">◆</span>
+                  <div className="w-8 h-[1px] bg-[#af8f52]/30" />
+                </div>
+              </div>
+
+              <form onSubmit={submit} className="space-y-4 font-serif">
+                <div>
+                  <Label htmlFor="rn" className="text-xs uppercase tracking-wider font-semibold text-[#2c2520]/80">Your Name</Label>
+                  <Input 
+                    id="rn" 
+                    value={name} 
+                    onChange={(e) => setName(e.target.value)} 
+                    required 
+                    className="mt-1.5 rounded-none border-[#af8f52]/20 bg-[#fbf9f4] focus-visible:ring-[#af8f52] text-sm text-[#2c2520]"
+                  />
+                </div>
+                
+                <div>
+                  <Label className="text-xs uppercase tracking-wider font-semibold text-[#2c2520]/80 block">Stature Rating</Label>
+                  <div className="mt-2 flex gap-1 bg-[#fbf9f4] p-2 border border-[#af8f52]/20 justify-center">
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <button
+                        type="button"
+                        key={n}
+                        onClick={() => setRating(n)}
+                        aria-label={`${n} stars`}
+                        className="transition-transform active:scale-95"
+                      >
+                        <Star
+                          className={`h-5 w-5 transition-colors ${n <= rating ? "fill-[#af8f52] text-[#af8f52]" : "text-[#af8f52]/20"}`}
+                        />
+                      </button>
+                    ))}
                   </div>
                 </div>
-                {r.comment && <p className="mt-2 text-sm text-foreground">{r.comment}</p>}
-                <div className="mt-2 text-xs text-muted-foreground">
-                  {new Date(r.created_at).toLocaleDateString()}
-                </div>
-              </article>
-            ))}
-          </div>
 
-          <aside className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <h2 className="font-serif text-lg font-bold">Leave a review</h2>
-            <form onSubmit={submit} className="mt-3 space-y-3">
-              <div>
-                <Label htmlFor="rn">Your name</Label>
-                <Input id="rn" value={name} onChange={(e) => setName(e.target.value)} required />
-              </div>
-              <div>
-                <Label>Rating</Label>
-                <div className="mt-1 flex gap-1">
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <button
-                      type="button"
-                      key={n}
-                      onClick={() => setRating(n)}
-                      aria-label={`${n} stars`}
-                    >
-                      <Star
-                        className={`h-6 w-6 ${n <= rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground"}`}
-                      />
-                    </button>
-                  ))}
+                <div>
+                  <Label htmlFor="rc" className="text-xs uppercase tracking-wider font-semibold text-[#2c2520]/80">Your Commentary</Label>
+                  <Textarea 
+                    id="rc" 
+                    value={comment} 
+                    onChange={(e) => setComment(e.target.value)} 
+                    placeholder="Share your stay experience details..."
+                    className="mt-1.5 rounded-none border-[#af8f52]/20 bg-[#fbf9f4] focus-visible:ring-[#af8f52] text-sm text-[#2c2520] min-h-[100px] resize-none"
+                  />
                 </div>
-              </div>
-              <div>
-                <Label htmlFor="rc">Comment (optional)</Label>
-                <Textarea id="rc" value={comment} onChange={(e) => setComment(e.target.value)} />
-              </div>
-              <Button type="submit" disabled={submitting} className="w-full">
-                {submitting ? "Submitting..." : "Submit review"}
-              </Button>
-            </form>
-          </aside>
-        </div>
-      </section>
+
+                <Button 
+                  type="submit" 
+                  disabled={submitting} 
+                  className="w-full bg-gradient-to-b from-[#c5a86a] to-[#af8f52] text-[#fbf9f4] font-serif tracking-widest rounded-none py-5 border border-[#af8f52] hover:brightness-110 shadow-sm transition-all text-xs"
+                >
+                  {submitting ? "PRESERVING..." : "INScribe REVIEW"}
+                </Button>
+              </form>
+            </aside>
+
+          </div>
+        </section>
+
+      </div>
     </SiteLayout>
   );
 }

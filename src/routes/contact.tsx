@@ -24,60 +24,100 @@ export const Route = createFileRoute("/contact")({
 function ContactPage() {
   return (
     <SiteLayout>
-      <section className="border-b border-border bg-secondary/40">
-        <div className="mx-auto max-w-6xl px-4 py-12">
-          <h1 className="font-serif text-4xl font-bold text-foreground">Contact Reception</h1>
-          <p className="mt-2 text-muted-foreground">
-            We're here to help with bookings, questions, or special requests.
-          </p>
-        </div>
-      </section>
+      <div className="bg-[#fbf9f4] text-[#2c2520] min-h-screen">
+        
+        {/* --- PAGE HEADER --- */}
+        <section className="bg-[#faf6ee] border-b border-[#af8f52]/20">
+          <div className="mx-auto max-w-5xl px-6 py-16 text-center md:text-left">
+            <span className="text-xs font-bold tracking-[0.3em] text-[#af8f52] block mb-2">INQUIRIES</span>
+            <h1 className="font-serif text-4xl font-normal tracking-wide text-[#2c2520] md:text-5xl">
+              Contact Reception
+            </h1>
+            <div className="w-16 h-[1px] bg-[#af8f52] my-4 mx-auto md:mx-0" />
+            <p className="max-w-2xl font-serif italic text-sm text-muted-foreground leading-relaxed">
+              Whether arranging formal bookings, seeking custom provisions, or requesting guidance through the province, our desk remains open to your communication.
+            </p>
+          </div>
+        </section>
 
-      <section className="mx-auto max-w-4xl px-4 py-12">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <a
-            href="tel:+250793081660"
-            className="flex items-start gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:shadow-md"
-          >
-            <Phone className="h-6 w-6 text-primary" />
-            <div>
-              <div className="font-semibold text-foreground">Call us</div>
-              <div className="text-sm text-muted-foreground">+250 793 081 660</div>
-            </div>
-          </a>
-          <a
-            href="https://wa.me/250793081660"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-start gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:shadow-md"
-          >
-            <MessageCircle className="h-6 w-6 text-primary" />
-            <div>
-              <div className="font-semibold text-foreground">WhatsApp</div>
-              <div className="text-sm text-muted-foreground">Chat with us instantly</div>
-            </div>
-          </a>
-          <a
-            href="mailto:hello@kairosinn.rw"
-            className="flex items-start gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:shadow-md"
-          >
-            <Mail className="h-6 w-6 text-primary" />
-            <div>
-              <div className="font-semibold text-foreground">Email</div>
-              <div className="text-sm text-muted-foreground">hello@kairosinn.rw</div>
-            </div>
-          </a>
-          <div className="flex items-start gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
-            <MapPin className="h-6 w-6 text-primary" />
-            <div>
-              <div className="font-semibold text-foreground">Visit us</div>
-              <div className="text-sm text-muted-foreground">
-                Karangazi, Nyagatare District, Eastern Province, Rwanda
+        {/* --- COMMUNICATIONS DIRECTORY --- */}
+        <section className="mx-auto max-w-4xl px-6 py-16">
+          <div className="grid gap-6 sm:grid-cols-2">
+            
+            {/* Phone Channel */}
+            <a
+              href="tel:+250793081660"
+              className="group relative rounded-none border border-[#af8f52]/20 bg-[#fbf9f4] p-6 transition-all duration-300 hover:border-[#af8f52] hover:shadow-md flex items-start gap-4"
+            >
+              <div className="p-2.5 border border-[#af8f52]/10 bg-[#faf6ee] group-hover:bg-[#af8f52]/10 transition-colors shrink-0">
+                <Phone className="h-5 w-5 text-[#af8f52]" />
+              </div>
+              <div>
+                <div className="font-serif text-sm font-semibold tracking-wider text-[#2c2520] uppercase">Voice Dispatch</div>
+                <div className="mt-1 font-serif text-base text-muted-foreground group-hover:text-[#af8f52] transition-colors">
+                  +250 793 081 660
+                </div>
+              </div>
+            </a>
+
+            {/* WhatsApp Channel */}
+            <a
+              href="https://wa.me/250793081660"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative rounded-none border border-[#af8f52]/20 bg-[#fbf9f4] p-6 transition-all duration-300 hover:border-[#af8f52] hover:shadow-md flex items-start gap-4"
+            >
+              <div className="p-2.5 border border-[#af8f52]/10 bg-[#faf6ee] group-hover:bg-[#af8f52]/10 transition-colors shrink-0">
+                <MessageCircle className="h-5 w-5 text-[#af8f52]" />
+              </div>
+              <div>
+                <div className="font-serif text-sm font-semibold tracking-wider text-[#2c2520] uppercase">Instant Messaging</div>
+                <div className="mt-1 font-serif text-sm text-muted-foreground group-hover:text-[#2c2520] transition-colors">
+                  Chat via WhatsApp
+                </div>
+              </div>
+            </a>
+
+            {/* Email Channel */}
+            <a
+              href="mailto:hello@kairosinn.rw"
+              className="group relative rounded-none border border-[#af8f52]/20 bg-[#fbf9f4] p-6 transition-all duration-300 hover:border-[#af8f52] hover:shadow-md flex items-start gap-4"
+            >
+              <div className="p-2.5 border border-[#af8f52]/10 bg-[#faf6ee] group-hover:bg-[#af8f52]/10 transition-colors shrink-0">
+                <Mail className="h-5 w-5 text-[#af8f52]" />
+              </div>
+              <div>
+                <div className="font-serif text-sm font-semibold tracking-wider text-[#2c2520] uppercase">Electronic Mail</div>
+                <div className="mt-1 font-serif text-base text-muted-foreground group-hover:text-[#af8f52] transition-colors break-all">
+                  hello@kairosinn.rw
+                </div>
+              </div>
+            </a>
+
+            {/* Location Module */}
+            <div className="relative rounded-none border border-[#af8f52]/20 bg-[#faf6ee] p-6 flex items-start gap-4 sm:col-span-2">
+              <div className="p-2.5 border border-[#af8f52]/10 bg-[#fbf9f4] shrink-0">
+                <MapPin className="h-5 w-5 text-[#af8f52]" />
+              </div>
+              <div>
+                <div className="font-serif text-sm font-semibold tracking-wider text-[#2c2520] uppercase">Our Coordinates</div>
+                <p className="mt-1 font-serif text-sm italic text-muted-foreground leading-relaxed">
+                  Karangazi, Nyagatare District, Eastern Province, Rwanda
+                </p>
               </div>
             </div>
+
           </div>
-        </div>
-      </section>
+          
+          {/* Subtle Structural Design Ornament Base */}
+          <div className="flex items-center justify-center gap-2 mt-16 opacity-40">
+            <div className="w-16 h-[1px] bg-[#af8f52]" />
+            <span className="text-[#af8f52] text-xs">◆</span>
+            <div className="w-16 h-[1px] bg-[#af8f52]" />
+          </div>
+        </section>
+
+      </div>
     </SiteLayout>
   );
 }
